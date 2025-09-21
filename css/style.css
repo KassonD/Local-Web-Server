@@ -1,0 +1,203 @@
+/* Default */
+button {
+    font-family: sans-serif;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+button:hover {
+    scale: 1.1;
+}
+
+/* Main */
+body.mainBody {
+    background-color: #323945;
+    
+    padding: 0;
+    margin: 0;
+}
+
+h3.mainHeader {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    overflow: hidden;
+
+    background-color: dodgerblue;
+    color: white;
+    font-family: sans-serif;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.60);
+
+    font-size: 28px;
+    width: 100%;
+    height: 60px;
+    margin: 0;
+}
+.mainHeader a {
+    text-decoration: none;
+    color: white;
+}
+
+/* Header */
+.headerContent {
+    margin: auto 20px;
+    display: flex;
+}
+
+.headerContent img {
+    width: 50px;
+    height: 50px;
+}
+a.headerContent:hover {
+    scale: 1.1;
+}
+
+div.mainContent {
+    display: flex;
+    justify-content: center;
+
+    margin: 60px;
+}
+
+/* Buttons */
+button.serverButton {
+    background-color: dodgerblue;
+    color: white;
+    font-size: 20px;
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+
+button.standardButton {
+    background-color: dodgerblue;
+    color: white;
+
+    font-size: 20px;
+    height: 64px;
+    width: 150px;
+    border-radius: 20px;
+}
+.standardButton:disabled {
+    background-color: #323945;
+    cursor: default;
+}
+.standardButton:disabled:hover {
+    background-color: #323945;
+    scale: 1;
+}
+
+button.startButton {
+    background-color: rgb(0, 240, 0);
+    margin: 0 40px;
+}
+
+button.stopButton {
+    background-color: rgb(240, 0, 0);
+    margin: 0 40px;
+}
+
+
+/* Tables */
+table.list {
+    border-collapse: collapse;
+    overflow: hidden;
+
+    background-color: #4b5567;
+    color: white;
+    font-family: sans-serif;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.60);
+
+    font-size: 20px;
+    min-width: 800px;
+    border-radius: 20px 20px 10px 10px;
+}
+.list thead tr {
+    background-color: dodgerblue;
+    text-align: left;
+    font-weight: bold;
+}
+.list th, .list td {
+    padding: 20px;
+}
+.list tbody tr {
+    border-bottom: 1px solid #323945;
+}
+.list tbody tr:nth-of-type(even) {
+    background-color: #576277;
+}
+.list tbody tr:last-of-type {
+    border-bottom: 10px solid dodgerblue;
+}
+
+/* Tabs */
+div.tabs {
+    overflow: hidden;
+    flex: 1;
+
+    background-color: #4b5567;
+    color: white;
+    font-family: sans-serif;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.60);
+
+    font-size: 20px;
+    width: 100%;
+    height: 100%;
+    max-width: 1000px;
+    min-width: 400px;
+    height: 500px;
+    margin: auto 100px auto 100px;
+    border-radius: 20px 20px 20px 20px;
+}
+.tabs ul {
+    background-color: dodgerblue;
+    width: 100%;
+    height: 60px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+}
+.tabs li{
+    height: 60px;
+    width: 100%;
+    line-height: 60px;
+    border-bottom: 10px solid rgb(26, 111, 197);
+    font-weight: bold;
+    text-align: center;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+li.tab:hover {
+    background-color: rgb(73, 164, 255);
+}
+
+.tab.active {
+    background-color: rgb(26, 111, 197);
+    height: 60px;
+    width: 100%;
+    line-height: 60px;
+    border-bottom: 10px solid rgb(26, 111, 197);
+    text-align: center;
+    list-style-type: none;
+    cursor: default;
+}
+.tab.tab.active:hover {
+    background-color: rgb(26, 111, 197);;
+}
+
+div.tabButtonContainer {
+    display: flex;
+    justify-content: center;
+}
+
+[data-tab-content] {
+    display: none;
+    margin: 10px;
+}
+
+div.active[data-tab-content] {
+    display: block;
+    padding: 40px 20px;
+}
