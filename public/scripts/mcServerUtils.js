@@ -20,6 +20,10 @@ function stopServer(serverProcess) {
     serverProcess.stdin.write('/stop\n')
 }
 
+function buildServerList(){
+
+}
+
 module.exports = {
     startServer,
     stopServer

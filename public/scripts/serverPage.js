@@ -15,7 +15,7 @@ tabs.forEach(tab => {
 })
 
 function startServer() {
-    fetch('/server/start', {method: 'POST'})
+    fetch('/start', {method: 'POST'})
         .catch(error => console.error(error))
 
     document.getElementById('button_start').disabled = true
@@ -24,7 +24,7 @@ function startServer() {
 }
 
 function stopServer() {
-    fetch('/server/stop', {method: 'POST'})
+    fetch('/stop', {method: 'POST'})
         .catch(error => console.error(error))
 
     document.getElementById('button_start').disabled = false
