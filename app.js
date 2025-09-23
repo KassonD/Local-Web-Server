@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // MC Server
 app.post('/start', (req, res) => {
-    serverProcess = mcServerUtils.startServer("myServer");
+    serverProcess = mcServerUtils.startServer(0);
 });
 
 app.post('/stop', (req, res) => {
