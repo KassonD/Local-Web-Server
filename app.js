@@ -5,9 +5,22 @@ const mcServerUtils = require('./public/scripts/mcServerUtils')
 const app = express();
 const port = 3000;
 
+var serverProcess = null;
+var serverIndex = 0;
+
 app.use((req, res, next) => {
    console.log(req.url, req.method);
    next();
+});
+
+// Extra Functionality
+app.get('/', (req, res, next) => {
+    mcServerUtils.buildServerList();
+    next();
+});
+
+app.get('/server.html', (req, res, next) => {
+    next();
 });
 
 // Access files from public folder
@@ -15,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // MC Server
 app.post('/start', (req, res) => {
-    serverProcess = mcServerUtils.startServer(0);
+    serverProcess = mcServerUtils.startServer(serverIndex);
 });
 
 app.post('/stop', (req, res) => {

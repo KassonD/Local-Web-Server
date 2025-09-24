@@ -30,12 +30,29 @@ function stopServer(serverProcess) {
 }
 
 function buildServerList() {
+    var table = document.getElementById("serverList");
     serverData = JSON.parse(fs.readFileSync(serverDataPath));
 
     for (i = 0; i < serverData.serverCount; i++)
     {
-        serverName = serverData.servers['server_' + i].name;
+        var serverName = serverData.servers['server_' + i].name;
+        var status = 'Offline';
+
+        if (serverData.servers['server_' + i].active)
+            status = 'Online'
+        
+        var row =   <tr>
+                        <td>
+                            <a href="/server.html">
+                                <button class="serverButton">${serverName}</button>
+                            </a>
+                        </td>
+                        <td id="server1_status">${status}</td>
+                    </tr>
+        
+        table.innerHTML += row;
     }
+    console.log("Buitlfjdakfhjda");
 }
 
 function addServer(serverName) {
