@@ -22,7 +22,7 @@
                 <div id="server" data-tab-content class="active">
                     
                     <div class="tabButtonContainer">
-                        <button id="button_start" class="standardButton startButton" onclick="startServer()">Start</button>
+                        <button id="button_start" class="standardButton startButton" onclick="startServer()" disabled>Start</button>
                         <button id="button_stop" class="standardButton stopButton" onclick="stopServer()" disabled>Stop</button>
                     </div>
                     
@@ -39,5 +39,8 @@
         </div>
 
         <script src="/scripts/serverPage.js"></script>
+        <script>
+            checkServerStatus();
+        </script>
     </body>
 </html>

@@ -5,22 +5,29 @@ const mcServerUtils = require('./public/scripts/mcServerUtils')
 const app = express();
 const port = 3000;
 
-var serverProcess = null;
-var serverIndex = 0;
+let serverProcess = null;
+let serverIndex = 0;
 
+// Prints out all urls
 app.use((req, res, next) => {
    console.log(req.url, req.method);
    next();
 });
 
-// Extra Functionality
+// Parses all json request bodies
+app.use(express.json());
+
+//Extra Functionality
 app.get('/', (req, res, next) => {
-    mcServerUtils.buildServerList();
+    mcServerUtils.updateServerStatus(serverProcess);
     next();
 });
 
-app.get('/server.html', (req, res, next) => {
-    next();
+app.get('/api/server-status', (req, res) => {
+    res.json({
+        isRunning: serverProcess,
+        index: serverIndex
+    });
 });
 
 // Access files from public folder
@@ -33,7 +40,11 @@ app.post('/start', (req, res) => {
 
 app.post('/stop', (req, res) => {
     mcServerUtils.stopServer(serverProcess);
-    serverProcess = null
+    serverProcess = null;
+});
+
+app.post('/api/server-index', (req, res) => {
+    serverIndex = req.body.index;
 });
 
 // If file can't be accessed

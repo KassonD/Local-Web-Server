@@ -29,32 +29,6 @@ function stopServer(serverProcess) {
     deactivateServer();
 }
 
-function buildServerList() {
-    var table = document.getElementById("serverList");
-    serverData = JSON.parse(fs.readFileSync(serverDataPath));
-
-    for (i = 0; i < serverData.serverCount; i++)
-    {
-        var serverName = serverData.servers['server_' + i].name;
-        var status = 'Offline';
-
-        if (serverData.servers['server_' + i].active)
-            status = 'Online'
-        
-        var row =   <tr>
-                        <td>
-                            <a href="/server.html">
-                                <button class="serverButton">${serverName}</button>
-                            </a>
-                        </td>
-                        <td id="server1_status">${status}</td>
-                    </tr>
-        
-        table.innerHTML += row;
-    }
-    console.log("Buitlfjdakfhjda");
-}
-
 function addServer(serverName) {
     server = {
         "name": serverName,
@@ -84,8 +58,16 @@ function deactivateServer() {
     fs.writeFileSync(serverDataPath, JSON.stringify(serverData, null, 2));
 }
 
+function updateServerStatus(serverProcess)
+{
+    serverData = JSON.parse(fs.readFileSync(serverDataPath));
+
+    if (serverProcess == null)
+        deactivateServer();
+}
+
 module.exports = {
     startServer,
     stopServer,
-    buildServerList
+    updateServerStatus
 }

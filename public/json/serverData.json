@@ -1,10 +1,14 @@
 {
   "lastServerActive": 0,
-  "serverCount": 1,
+  "serverCount": 2,
   "servers": {
     "server_0": {
       "name": "myServer",
-      "active": true
+      "active": false
+    },
+    "server_1": {
+      "name": "test",
+      "active": false
     }
   }
 }

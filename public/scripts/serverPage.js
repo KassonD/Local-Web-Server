@@ -32,12 +32,21 @@ function stopServer() {
     document.getElementById('output').innerHTML = "Stopping..."
 }
 
-function enableServerButtons() {
-    console.log('serverProcessgffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-    // if (serverProcess == null) {
-    //     document.getElementById('button_start').disabled = true
-    // }
-    // else {
-    //     document.getElementById('button_stop').disabled = true
-    // }
+function checkServerStatus() {
+    fetch('/api/server-status')
+        .then(res => res.json())
+        .then(data => {
+            enableServerButtons(data.index, data.isRunning)
+        })
+}
+
+function enableServerButtons(serverIndex, isRunning) {
+    fetch('/json/serverData.json')
+        .then(res => res.json())
+        .then(data => {
+            if (data.servers['server_' + serverIndex].active)
+                document.getElementById('button_stop').disabled = false;
+            else if (!isRunning)
+                document.getElementById('button_start').disabled = false;
+        });
 }
