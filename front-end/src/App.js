@@ -1,24 +1,21 @@
-import logo from './logo.svg';
 import './App.css';
+import Sidebar from './components/Sidebar';
 
 function App() {
+  const title = "Local Web Server"
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <header className='App-header'>{title}</header>
+      <body className='App-body'>
+        <div className='content'>
+          <Sidebar></Sidebar>
+          <div>
+            fdhhhhhhhhhhhhhhhhhhhhhhhhhhh
+          </div>
+        </div>
+      </body>
+    </>
   );
 }
 
