@@ -1,2 +1,5 @@
 # Instructions
-To be determined.
+
+## Start front-end
+cd front-end
+npm start dev
