@@ -1,15 +1,20 @@
 
 .App-header {
-  background-color: dodgerblue;
+  background-color: #4b5567;
   display: flex;
   justify-content: center;
   padding: 4px;
   color: white;
   font-size: 16px;
+  z-index: 2;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 .App-body {
-  background-color: #323945;
+  margin-top: 29px;
 }
 
 .App-link {
