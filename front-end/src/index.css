@@ -1,9 +1,11 @@
 /* Variables */
 
 :root {
+  --heavy-gray: #262c35;
   --primary-gray: #323945;
   --medium-gray: #3a4352;
   --secondary-gray: #4b5567;
+  --glow: rgba(123, 104, 238, 0.5);
 }
 
 /* Defaults */
@@ -37,6 +39,7 @@ button {
     sans-serif;
   -moz-osx-font-smoothing: grayscale;
   font-weight: bold;
+  color: white;
 }
 button:hover {
   cursor: pointer;
@@ -60,23 +63,55 @@ input:focus {
   background-color: var(--secondary-gray);
   outline: none;
 }
+input.glow:focus {
+  box-shadow: 0 0 10px var(--glow);
+}
 
 ::placeholder {
   color: rgba(255, 255, 255, 0.5);;
 }
 
+select {
+  color: white;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -moz-osx-font-smoothing: grayscale;
+}
+select {
+  background-color: var(--medium-gray);
+  padding: 12px 24px;
+  border: 1px solid mediumslateblue;
+  border-radius: 10px;
+}
+select:focus {
+  background-color: var(--secondary-gray);
+  outline: none;
+}
+
+li.selected {
+  color: mediumslateblue;
+  border-bottom: 2px solid mediumslateblue;
+}
+
 /* Classes */
 
 .sidebar {
-  background-color: var(--secondary-gray);
+  background-color: var(--heavy-gray);
+  border-right: 1px solid var(--secondary-gray);
   display: flex;
   flex-direction: column;
   position: fixed;
   height: 100%;
 }
 
-.content {
+.content-dashboard {
   margin-left: 180px;
+  padding: 48px 48px;
+}
+
+.content-server {
   padding: 48px 48px;
 }
 
@@ -85,18 +120,57 @@ button.primary {
   padding: 16px 24px;
   border-radius: 10px;
   font-size: 16px;
-  color: white;
 }
 button.primary:active {
   background-color: slateblue;
 }
 
 button.secondary {
-  background-color: darkslateblue;
-  border: 1px solid mediumslateblue;
+  background-color: var(--secondary-gray);
   border-radius: 10px;
   font-size: 16px;
-  padding: 16px 16px;
+  padding: 16px 24px;
+}
+button.secondary:active {
+  background-color: var(--medium-gray);
+}
+
+button.subtle {
+  padding: 8px 24px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button.primary-subtle {
+  background-color: mediumslateblue;
+  padding: 8px 24px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+button.primary-subtle:active {
+  background-color: slateblue;
+}
+
+button.primary-icon {
+  background-color: var(--primary-gray);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 16px;
+  align-items: center;
+}
+button.primary-icon:active {
+  background-color: var(--heavy-gray);
+}
+
+button.secondary-icon {
+  background-color: var(--secondary-gray);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 16px;
+  align-items: center;
+}
+button.secondary-icon:active {
+  background-color: var(--medium-gray);
 }
 
 button.game {
@@ -110,14 +184,56 @@ button.game {
   color: white;
 }
 button.game:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--medium-gray);
 }
 button.game.selected {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--secondary-gray);
   border-left: 6px solid mediumslateblue;
 }
 button.game p {
   width: 100%;
+}
+
+button.start {
+  background-color: limegreen;
+  padding: 16px 0;
+  width: 150px;
+  border-radius: 10px;
+  font-size: 24px;
+  border: 2px solid lime;
+}
+button.start:hover {
+  background-color: rgb(39, 161, 39);
+}
+
+button.stop {
+  background-color: crimson;
+  padding: 16px 0;
+  width: 150px;
+  border-radius: 10px;
+  font-size: 24px;
+  border: 2px solid red;
+}
+button.stop:hover {
+  background-color: rgb(180, 17, 49);
+}
+
+button.kill {
+  background-color: var(--medium-gray);
+  padding: 16px 0;
+  width: 150px;
+  border-radius: 10px;
+  font-size: 24px;
+  border: 2px solid var(--secondary-gray);
+}
+button.kill:hover {
+  background-color: var(--primary-gray);
+}
+
+button.icon {
+  background-color: transparent;
+  font-weight: normal;
+  font-size: 12px;
 }
 
 .header-servers {
@@ -144,13 +260,15 @@ button.game p {
 }
 
 .server-card {
+  border: 1px solid var(--secondary-gray);
   width: 256px;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   text-align: center;
 }
 .server-card:hover {
+  border: 1px solid mediumslateblue;
+  box-shadow: 0 0 10px var(--glow);
   cursor: pointer;
   scale: 1.05;
 }
@@ -161,7 +279,7 @@ button.game p {
   border-bottom: 4px solid mediumslateblue;
 }
 .card-header {
-  background-color: var(--secondary-gray);
+  background-color: var(--heavy-gray);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -176,12 +294,18 @@ button.game p {
 }
 
 .status-indicator {
+  background-color: red;
+  box-shadow: 0 0 10px rgb(255, 0, 0);
   width: 12px;
   height: 12px;
   min-width: 12px;
   min-height: 12px;
-  border: 2px solid var(--primary-gray);
   border-radius: 50%;
+}
+
+.status-indicator.online{
+  background-color: lime;
+  box-shadow: 0 0 10px rgb(0, 255, 0);
 }
 
 .modal {
@@ -244,31 +368,34 @@ button.game p {
   font-size: 32px;
 }
 
-.loading-spinner-small {
+.loading-container {
+  display: flex;
+  align-items: center;
+  margin: 9px;
+  gap: 16px;
+}
+.loading-spinner{
+  border-radius: 50%;
+  animation: loading 0.6s linear infinite;
+}
+.loading-spinner.small {
   width: 20px;
   height: 20px;
-  border: 4px solid rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(0, 0, 0, 0.4);
   border-top-color: mediumslateblue;
-  border-radius: 50%;
-  animation: loading 0.6s linear infinite;
 }
-.loading-spinner-medium {
+.loading-spinner.medium {
   width: 41px;
   height: 41px;
+  border: 4px solid rgba(0, 0, 0, 0.4);
+  border-top-color: mediumslateblue;
+}
+.loading-spinner.large {
+  width: 70px;
+  height: 70px;
   border: 6px solid rgba(0, 0, 0, 0.4);
   border-top-color: mediumslateblue;
-  border-radius: 50%;
-  animation: loading 0.6s linear infinite;
 }
-.loading-spinner-large {
-  width: 80px;
-  height: 80px;
-  border: 8px solid rgba(0, 0, 0, 0.4);
-  border-top-color: mediumslateblue;
-  border-radius: 50%;
-  animation: loading 0.6s linear infinite;
-}
-
 @keyframes loading {
   from {
     transform: rotate(0deg);
@@ -277,4 +404,231 @@ button.game p {
   to {
     transform: rotate(1turn);
   }
+}
+
+.loading-text.medium {
+  font-size: 24px;
+}
+.loading-text.large {
+  font-size: 48px;
+}
+
+.alert {
+  background-color: var(--secondary-gray);
+  position: fixed;
+  /* bottom: 100px; */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 16px 24px;
+  max-width: 500px;
+  border-radius: 10px;
+  z-index: 2;
+  animation: send-alert 5s ease-in-out;
+}
+.alert.error {
+  background-color: lightpink;
+  color: firebrick;
+  border: 1px solid firebrick;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+  font-weight: bold;
+}
+.alert.success {
+  background-color: palegreen;
+  color: seagreen;
+  border: 1px solid seagreen;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+  font-weight: bold;
+}
+@keyframes send-alert {
+  0% {
+    opacity: 0;
+    bottom: 80px;
+  }
+
+  5% {
+    opacity: 1;
+    bottom: 100px;
+  }
+
+  95% {
+    opacity: 1;
+    bottom: 100px;
+  }
+
+  100% {
+    opacity: 0;
+    bottom: 120px;
+  }
+}
+
+.tabs {
+  margin: 0 10%;
+}
+.tab-labels {
+  display: flex;
+  justify-content: center;
+  list-style-type: none;
+  margin-bottom: 32px;
+}
+.tab-labels li{
+  padding: 8px 0;
+  width: 150px;
+  font-weight: bold;
+  text-align: center;
+}
+.tab-labels li:hover:not(.selected){
+  cursor: pointer;
+  background-color: var(--medium-gray);
+  border-radius: 10px;
+}
+.tab-container {
+  background-color: var(--heavy-gray);
+  border: 1px solid var(--secondary-gray);
+  margin: 16px 0;
+  padding:16px;
+  border-radius: 10px;
+}
+.tab-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+  gap: 32px;
+}
+
+.console {
+  border: 1px solid var(--secondary-gray);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.console-log {
+  background-color: #0b0d0f;
+  color: mediumslateblue;
+  height: 400px;
+  padding: 8px 24px;
+  overflow-y: auto;
+}
+.console-input {
+  background-color: var(--medium-gray);
+  width: 100%;
+  border: none;
+  border-radius: 0;
+}
+.console-input:focus {
+  background-color: var(--medium-gray);
+  width: 100%;
+}
+
+.file-editor {
+  border: 1px solid var(--secondary-gray);
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.file-nav {
+  background-color: var(--heavy-gray);
+  width: 40%;
+  border-right: 1px solid var(--secondary-gray);
+}
+.file-nav-header {
+  background-color: var(--heavy-gray); 
+  border-bottom: 1px solid var(--secondary-gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+}
+.file-nav-content {
+  overflow: auto;
+  height: 500px;
+  padding: 8px;
+}
+.file-editor form {
+  background-color: var(--medium-gray);
+  width: 100%;
+}
+.file-text {
+  background-color: var(--medium-gray);
+  color: white;
+  width: stretch;
+  height: 500px;
+  padding: 8px;
+  resize: none;
+  border: none;
+  vertical-align: text-top;
+}
+.file-text:focus {
+  outline: none;
+}
+.file-text-header {
+  background-color: var(--heavy-gray);
+  border-bottom: 1px solid var(--secondary-gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 8px 8px 16px;
+}
+.file-text-header-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+}
+.file-item p {
+  width: stretch;
+}
+.file-item:hover {
+  background-color: var(--medium-gray);
+  cursor: pointer;
+}
+.file-item:hover button{
+  color: white;
+}
+
+.file-item button{
+  color: transparent;
+}
+.file-item button:hover {
+  color: red;
+}
+
+.confirmation-modal {
+  width: 400px;
+}
+.confirmation-container {
+  background-color: var(--primary-gray);
+  justify-content: center;
+  margin: 0 12px 12px 12px;
+  padding: 16px;
+  gap: 32px;
+  border-radius: 5px;
+}
+.confirmation-container p{
+  text-align: center;
+  margin-bottom: 32px;
+}
+.confirmation-buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+button.yes {
+  background-color: var(--secondary-gray);
+}
+button.yes:active {
+  background-color: var(--medium-gray);
+}
+
+button.no {
+  background-color: crimson;
+}
+button.no:active {
+  background-color: rgb(180, 17, 49);
 }

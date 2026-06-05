@@ -1,7 +1,12 @@
 
-function LoadingSpinner({size = "large"}) {
+function LoadingSpinner({text = "", size = "large"}) {
     return (
-        <div className={"loading-spinner-" + size}></div>
+        <div className="loading-container">
+            {text != "" && (
+                <p className={`loading-text ${size}`}>{text}</p>
+            )}
+            <div className={`loading-spinner ${size}`}></div>
+        </div>
     );
 }
 

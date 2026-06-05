@@ -3,15 +3,20 @@ import LoadingSpinner from "./LoadingSpinner";
 import { BACKEND_URL, ALERT_MODES } from '../constants';
 import { AlertContext } from '../context/AlertContext';
 
-function CrearteServerModal({close, game}) {
+function FileUploadModal({close, gameName, dirPath}) {
     const [posting, setPosting] = useState(false);
+    const [fileType, setFileType] = useState("file");
     const sendAlert = useContext(AlertContext);
 
-    const postServer = async (formData) => {
+    const postFile = async (formData) => {
         try {
             setPosting(true);
 
-            const res = await fetch(`${BACKEND_URL}/api/games/${game}/servers`, {
+            const params = new URLSearchParams({
+                path: dirPath.join("/")
+            });
+
+            const res = await fetch(`${BACKEND_URL}/api/games/${gameName}/servers/${fileType}/upload?${params}`, {
                 method: "POST",
                 body: formData
             });
@@ -22,7 +27,10 @@ function CrearteServerModal({close, game}) {
             if (!res.ok || res == null)
                 throw new Error(data.message || res.status);
 
-            setPosting(false);
+            if (fileType === "file")
+                sendAlert(ALERT_MODES.SUCCESS, "File added");
+            else
+                sendAlert(ALERT_MODES.SUCCESS, "Directory added");
             close();
         }
         catch (err) {
@@ -37,7 +45,11 @@ function CrearteServerModal({close, game}) {
 
         const formData = new FormData(event.target);
         console.log(formData)
-        postServer(formData);
+        postFile(formData);
+    }
+
+    const changeFileType = (event) => {
+        setFileType(event.target.value);
     }
 
     return (
@@ -45,7 +57,7 @@ function CrearteServerModal({close, game}) {
             <div className="modal-background"></div>
             <div className="modal">
                 <div className="modal-header">
-                    <p>Create Server ({game.replaceAll("_", " ")})</p>
+                    <p>Add to {dirPath.at(-1)}/</p>
                     {posting ? (
                         <LoadingSpinner size="small"></LoadingSpinner>
                     ) : (
@@ -54,16 +66,26 @@ function CrearteServerModal({close, game}) {
                 </div>
                 <form onSubmit={submitForm}>
                     <div className="form-input-container">
-                        <label>Server Name</label>
-                        <input type="text" name='name' placeholder="My Server" required></input>
+                        <label>Type</label>
+                        <select name="type" onChange={changeFileType}>
+                            <option value="file">File</option>
+                            <option value="dir">Directory</option>
+                        </select>
                     </div>
-                    <div className="form-input-container">
-                        <label>Server Pack (.zip)</label>
-                        <input type="file" name='server_pack' accept='.zip' placeholder="My Server" required></input>
-                    </div>
+                    {fileType === "file" ? (
+                        <div className="form-input-container">
+                            <label>Files</label>
+                            <input type="file" name="file" placeholder="My Server" multiple required></input>
+                        </div>
+                    ) : (
+                        <div className="form-input-container">
+                            <label>Directory Name</label>
+                            <input type="text" name='name' placeholder="my_folder" required></input>
+                        </div>
+                    )}
                     <div className="form-input-container">
                         {posting ? (
-                            <LoadingSpinner size="medium" text="Submitting server"></LoadingSpinner>
+                            <LoadingSpinner size="medium" text="Submitting file"></LoadingSpinner>
                         ) : (
                             <button className="primary">Submit</button>
                         )}
@@ -74,4 +96,4 @@ function CrearteServerModal({close, game}) {
     );
 }
 
-export default CrearteServerModal;
+export default FileUploadModal;

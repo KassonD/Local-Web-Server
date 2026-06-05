@@ -7,9 +7,24 @@ async function getGames() {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
         const serverData = await JSON.parse(data);
-        const servers = serverData.games;
+        const games = serverData.games;
 
-        return servers;
+        return games;
+    }
+    catch (err) {
+        console.error("Error reading file:", err);
+        return;
+    }
+}
+
+async function getServer(gameName, serverName) {
+    try {
+        const data = await fs.readFile(serverDataPath, "utf8");
+        const serverData = await JSON.parse(data);
+        const game = serverData.games.find(game => game.name === gameName);
+        const server = game.servers.find(server => server.name === serverName);
+
+        return server;
     }
     catch (err) {
         console.error("Error reading file:", err);
@@ -42,12 +57,11 @@ async function checkName(gameName, serverName) {
 async function addServer(newData, gameName, serverName) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
-        const serverData = await JSON.parse(data);
+        const serverData = await JSON.parse(data); 
         const servers = serverData.games.find(g => g.name === gameName).servers;
 
         const pushData = {
             "name": serverName,
-            "active": false,
             "image_url": `/images/defaults/${gameName}_default.png`
         }
         servers.push(pushData)
@@ -59,9 +73,9 @@ async function addServer(newData, gameName, serverName) {
     }
 }
 
-
 module.exports = {
     getGames,
+    getServer,
     checkName,
     addServer
 }

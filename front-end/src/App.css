@@ -1,6 +1,14 @@
+:root {
+  --heavy-gray: #262c35;
+  --primary-gray: #323945;
+  --medium-gray: #3a4352;
+  --secondary-gray: #4b5567;
+  --glow: rgba(123, 104, 238, 0.5);
+}
 
 .App-header {
-  background-color: #4b5567;
+  background-color: var(--heavy-gray);
+  border-bottom: 1px solid var(--secondary-gray);
   display: flex;
   justify-content: center;
   padding: 4px;
