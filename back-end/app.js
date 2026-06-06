@@ -1,14 +1,19 @@
 const express = require("express");
-const multer = require("multer")
+const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
-const uploadUtils = require("./src/uploadUtils");
 const jsonUtils = require("./src/jsonUtils");
-const fileUtils = require("./src/fileUtils")
+const fileUtils = require("./src/fileUtils");
+const dockerUtils = require("./src/dockerUtils");
 const { spawn } = require("child_process");
 
 const app = express();
 const port = 8000;
+
+// Ensure folders
+(async () => {
+    fileUtils.ensureFolders();
+})();
 
 // Sets server port
 app.listen(port);
@@ -20,11 +25,10 @@ const runningServers = new Map();
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if (file.fieldname === "server_pack") {
-            cb(null, path.join("server_packs", req.params.gameName));
-            
+            cb(null, path.join("/data/server_packs", req.params.gameName));
         }
         else if (file.fieldname === "file") {
-            cb(null, path.join("servers", req.params.gameName, req.query.path, "/"));
+            cb(null, path.join("/data/servers", req.params.gameName, req.query.path, "/"));
         }
         else {
             cb(null, "public");
@@ -62,7 +66,7 @@ app.use((req, res, next) => {
 });
 
 // Access files from public folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static("/data/public"));
 
 // Parses all json and from data request bodies
 // app.use(express.json());
@@ -128,14 +132,18 @@ app.get("/api/games/:gameName/servers/:serverName", async (req, res) => {
 
 app.get("/api/games/:gameName/servers/:serverName/status", async (req, res) => {
     try {
-        const server = runningServers.get(`${req.params.gameName}:${req.params.serverName}`);
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
 
-        if (server) {
-            console.log(`${req.params.serverName} is online`)
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        const status = await dockerUtils.getStatus(containerId);
+
+        if (status) {
+            console.log(`${serverName} is online`)
             res.json("online");
         }
         else {
-            console.log(`${req.params.serverName} is offline`)
+            console.log(`${serverName} is offline`)
             res.json("offline");
         }
     }
@@ -165,15 +173,18 @@ app.get("/api/games/:gameName/servers/:serverName/logs", async (req, res) => {
 // Post
 app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (req, res) => {
     try {
-        const serverName = await jsonUtils.checkName(req.params.gameName, req.body.name);
+        const gameName = req.params.gameName;
+        const serverName = await jsonUtils.checkName(gameName, req.body.name);
         
         if (serverName) {
-            await jsonUtils.addServer(req.body, req.params.gameName, serverName)
-            
-            const src = "server_packs/" + req.params.gameName + "/" + req.file.originalname;
-            const dest = "servers/" + req.params.gameName + "/" + serverName;
-            
-            await uploadUtils.unzipServerPack(src, dest);
+            const src = "/data/server_packs/" + gameName + "/" + req.file.originalname;
+            const dest = "/data/servers/" + gameName + "/" + serverName;
+            await fileUtils.unzipServerPack(src, dest);
+
+            console.log("next");
+
+            const containerId = await dockerUtils.createServerContainer(gameName, serverName, 21);
+            await jsonUtils.addServer(req.body, gameName, serverName, containerId)
 
             res.status(200).json({
                 message: "Server added"
@@ -284,36 +295,31 @@ app.post("/api/games/:gameName/servers/dir/delete", async (req, res) => {
 
 app.post("/api/games/:gameName/servers/:serverName/start", async (req, res) => {
     try {
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
+
         // Starts server
-        const serverDir = `./servers/${req.params.gameName}/${req.params.serverName}/`;
-        const serverProcess = spawn("cmd.exe", ["/c", "startserver.bat"], {
-            cwd: serverDir
-        });
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        await dockerUtils.startContainer(containerId);
 
         // Adds server to map
-        runningServers.set(`${req.params.gameName}:${req.params.serverName}`, {
-            process: serverProcess,
+        runningServers.set(`${gameName}:${serverName}`, {
+            containerId: containerId,
             logs: [],
             logVersion: 0
         });
 
-        const server = runningServers.get(`${req.params.gameName}:${req.params.serverName}`);
+        // Store logs
+        const logStream = await dockerUtils.getLogStream(containerId);
+        const server = runningServers.get(`${gameName}:${serverName}`);
 
-        // Stores the logs
-        server.process.stdout.on("data", data => {
+        logStream.on("data", data => {
             server.logs.push(data.toString());
             server.logVersion++;
         });
 
-        // When the server stops
-        server.process.on("close", () => {
-            console.log(`${req.params.serverName} from ${req.params.gameName} successfully stopped.`);
-
-            runningServers.delete(`${req.params.gameName}:${req.params.serverName}`);
-        })
-
         // Success message
-        console.log(`Starting ${req.params.serverName} from ${req.params.gameName}...`)
+        console.log(`Starting ${serverName} from ${gameName}...`)
         res.status(200).json({
             message: "Server starting"
         });
@@ -328,10 +334,14 @@ app.post("/api/games/:gameName/servers/:serverName/start", async (req, res) => {
 
 app.post("/api/games/:gameName/servers/:serverName/stop", async (req, res) => {
     try {
-        runningServers.get(`${req.params.gameName}:${req.params.serverName}`).process.stdin.write("stop\n");
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
+
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        await dockerUtils.stopContainer(containerId);
 
         // Success message
-        console.log(`Stopping ${req.params.serverName} from ${req.params.gameName}...`)
+        console.log(`Stopping ${serverName} from ${gameName}...`)
         res.status(200).json({
             message: "Server stopping"
         });
@@ -346,10 +356,14 @@ app.post("/api/games/:gameName/servers/:serverName/stop", async (req, res) => {
 
 app.post("/api/games/:gameName/servers/:serverName/kill", async (req, res) => {
     try {
-        runningServers.get(`${req.params.gameName}:${req.params.serverName}`).process.kill();
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
+
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        await dockerUtils.killContainer(containerId);
 
         // Success message
-        console.log(`Killing ${req.params.serverName} from ${req.params.gameName}...`)
+        console.log(`Killing ${serverName} from ${gameName}...`)
         res.status(200).json({
             message: "Killing process"
         });
@@ -364,7 +378,11 @@ app.post("/api/games/:gameName/servers/:serverName/kill", async (req, res) => {
 
 app.post("/api/games/:gameName/servers/:serverName/command", upload.none(), async (req, res) => {
     try {
-        runningServers.get(`${req.params.gameName}:${req.params.serverName}`).process.stdin.write(`${req.body.command}\n`);
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
+
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        await dockerUtils.sendComand(containerId, req.body.command);
 
         console.log(`Command: ${req.body.command}`);
         res.status(200).json({

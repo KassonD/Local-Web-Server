@@ -191,19 +191,26 @@ function FileEditor({gameName, serverName, serverStatus}) {
                     <div className="file-nav-header">
                         <button className="secondary-icon" onClick={backDir}>❮</button>
                         <h4>{`${depth > 0 ? ".../" : ""}${dirPath.at(-1)}/`}</h4>
-                        <button className="secondary-icon" onClick={() => setShowUploadModal(true)}>+</button>
+                        <button className="secondary-icon" onClick={() => {
+                            if (serverStatus === SERVER_STATUS.OFFLINE)
+                                setShowUploadModal(true);
+                        }}>+</button>
                     </div>
                     <div className='file-nav-content'>
                         {dirContent.sort((a, b) => b.isDir - a.isDir).map((file) => {
                             if (file.isDir)
                                 return <div className="file-item">
                                     <p onClick={() => changeDir(file.name)}>(dir) {file.name}</p>
-                                    <button className="icon" onClick={() => deleteDir(file.name)}>Delete</button>
+                                    {serverStatus === SERVER_STATUS.OFFLINE &&
+                                        <button className="icon" onClick={() => deleteDir(file.name)}>Delete</button>
+                                    }
                                 </div>
                             else
                                 return <div className="file-item">
                                     <p onClick={() => {getFileContent(file.name); setFileName(file.name);}}>{file.name}</p>
-                                    <button className="icon" onClick={() => deleteFile(file.name)}>Delete</button>
+                                    {serverStatus === SERVER_STATUS.OFFLINE &&
+                                        <button className="icon" onClick={() => deleteFile(file.name)}>Delete</button>
+                                    }
                                 </div>
                         })}
                     </div>

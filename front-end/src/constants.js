@@ -1,4 +1,4 @@
-export const BACKEND_URL = "http://localhost:8000"
+export const BACKEND_URL = `http://${window.location.hostname}:8000`
 
 export const ALERT_MODES = {
     NORMAL: "normal",

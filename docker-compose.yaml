@@ -5,6 +5,11 @@ services:
     container_name: backend
     ports:
       - "8000:8000"
+    environment:
+      - HOST_PATH=${HOST_PATH}
+    volumes:
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
   frontend:
     build: ./front-end
     container_name: frontend
@@ -12,3 +17,9 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+  mc-java21:
+    image: mc-java21
+    build:
+      context: ./docker_images/java21
+    profiles:
+      - build-only

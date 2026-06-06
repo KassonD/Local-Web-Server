@@ -191,7 +191,7 @@ function App() {
                                     ) : serverStatus === SERVER_STATUS.ONLINE ? (
                                         <>
                                             <button className="stop" onClick={stopServer}>Stop</button>
-                                            <button className="kill" onClick={stopServer}>Kill</button>
+                                            <button className="kill" onClick={killServer}>Kill</button>
                                         </>
                                     ) : (
                                         <LoadingSpinner size={SPINNER_SIZE.MEDIUM} text="Getting status "></LoadingSpinner>

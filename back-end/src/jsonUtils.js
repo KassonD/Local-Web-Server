@@ -1,7 +1,7 @@
 const fs = require("fs").promises;
 const path = require("path");
 
-const serverDataPath = "data/servers.json"
+const serverDataPath = "/data/json/servers.json"
 
 async function getGames() {
     try {
@@ -32,6 +32,21 @@ async function getServer(gameName, serverName) {
     }
 }
 
+async function getContainerId(gameName, serverName) {
+    try {
+        const data = await fs.readFile(serverDataPath, "utf8");
+        const serverData = await JSON.parse(data);
+        const game = serverData.games.find(game => game.name === gameName);
+        const server = game.servers.find(server => server.name === serverName);
+
+        return server.container_id;
+    }
+    catch (err) {
+        console.error("Error reading file:", err);
+        return;
+    }
+}
+
 async function checkName(gameName, serverName) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
@@ -54,14 +69,15 @@ async function checkName(gameName, serverName) {
     }
 }
 
-async function addServer(newData, gameName, serverName) {
+async function addServer(newData, gameName, serverName, containerId) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
         const serverData = await JSON.parse(data); 
         const servers = serverData.games.find(g => g.name === gameName).servers;
-
+        
         const pushData = {
             "name": serverName,
+            "container_id": containerId,
             "image_url": `/images/defaults/${gameName}_default.png`
         }
         servers.push(pushData)
@@ -76,6 +92,7 @@ async function addServer(newData, gameName, serverName) {
 module.exports = {
     getGames,
     getServer,
+    getContainerId,
     checkName,
     addServer
 }

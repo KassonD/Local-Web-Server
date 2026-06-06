@@ -36,8 +36,9 @@ function App() {
     }
 
     useEffect(() => {
-        getGames();
-    }, []);
+        if (!showModal)
+            getGames();
+    }, [showModal]);
     
     return (
         <>

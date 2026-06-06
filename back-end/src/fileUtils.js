@@ -1,7 +1,28 @@
 const fs = require("fs").promises;
 const path = require("path");
+const unzipper = require("unzipper");
 
-const serversPath = "servers/"
+const serversPath = "/data/servers/"
+
+async function ensureFolders(dirPath) {
+    const jsonUtils = require("./jsonUtils");
+    const games = await jsonUtils.getGames();
+
+    for (const game of games) {
+        await fs.mkdir(`/data/server_packs/${game.name}`, { recursive: true });
+        await fs.mkdir(`/data/servers/${game.name}`, { recursive: true });
+    }
+}
+
+async function unzipServerPack(src, dest) {
+    try {
+        const serverZip = await unzipper.Open.file(src);
+        await serverZip.extract({ path: dest });
+    }
+    catch (err) {
+        console.error("Error extracting file:", err);
+    }
+}
 
 async function getDirContent(gameName, dirPath) {
 
@@ -70,7 +91,6 @@ async function checkDirExists(gameName, dirPath) {
 async function addDir(gameName, dirPath) {
     try {
         await fs.mkdir(path.join(serversPath, gameName, dirPath));
-        return stat.isDirectory();
     }
     catch (err) {
         console.error("Error creating directory:", err);
@@ -96,6 +116,8 @@ async function deleteDir(gameName, filePath) {
 }
 
 module.exports = {
+    ensureFolders,
+    unzipServerPack,
     getDirContent,
     getFileContent,
     saveFileContent,
