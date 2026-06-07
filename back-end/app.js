@@ -322,7 +322,15 @@ app.post("/api/games/:gameName/servers/:serverName/start", async (req, res) => {
         const server = runningServers.get(`${gameName}:${serverName}`);
 
         logStream.on("data", data => {
+            if (server.logs.length > 1000)
+                server.logs.shift();
+
             server.logs.push(data.toString());
+            server.logVersion++;
+        });
+
+        logStream.on("close", data => {
+            server.logs = [];
             server.logVersion++;
         });
 

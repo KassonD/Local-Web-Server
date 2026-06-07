@@ -25,8 +25,6 @@
     ```
     - For Linux/Mac, you also need to run `chmod +x setup.sh` so you can run the setup script
 
-4. Navigate to the root directory **LOCAL-WEB-SERVER**
-
 5. Run the setup file
     - Windows: `setup.bat`
     - Linux/Mac: `./setup.sh`
