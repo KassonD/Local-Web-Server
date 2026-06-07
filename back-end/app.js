@@ -185,14 +185,14 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
 
             if (unzipped) {
                 const containerId = await dockerUtils.createServerContainer(gameName, serverName, 21);
-                await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId)
+                await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId);
 
                 res.status(200).json({
                     message: "Server added"
                 });
             }
             else {
-                await fileUtils.deleteServer(gameName, serverName);
+                await fileUtils.deleteServer(gameName, serverName, packName);
                 res.status(500).json({
                     message: "Error while unzipping"
                 });
