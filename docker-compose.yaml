@@ -10,6 +10,7 @@ services:
     volumes:
       - ./data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
   frontend:
     build: ./front-end
     container_name: frontend
@@ -17,6 +18,7 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
   mc-java21:
     image: mc-java21
     build:
