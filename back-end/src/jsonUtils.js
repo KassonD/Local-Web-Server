@@ -69,7 +69,7 @@ async function checkName(gameName, serverName) {
     }
 }
 
-async function addServer(newData, gameName, serverName, containerId) {
+async function addServer(newData, gameName, serverName, packName, containerId) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
         const serverData = await JSON.parse(data); 
@@ -77,6 +77,7 @@ async function addServer(newData, gameName, serverName, containerId) {
         
         const pushData = {
             "name": serverName,
+            "pack_name": packName,
             "container_id": containerId,
             "image_url": `/images/defaults/${gameName}_default.png`
         }
@@ -89,10 +90,31 @@ async function addServer(newData, gameName, serverName, containerId) {
     }
 }
 
+async function deleteServer(gameName, serverName) {
+    try {
+        const data = await fs.readFile(serverDataPath, "utf8");
+        const serverData = await JSON.parse(data);
+        const game = serverData.games.find(game => game.name === gameName);
+        const server = game.servers.find(server => server.name === serverName);
+
+        if (server) {
+            game.servers = game.servers.filter(server => server.name !== serverName);
+            fs.writeFile(serverDataPath, JSON.stringify(serverData, null, 2));
+            console.log(game);
+        }
+        else
+            console.log(game, "didn't work though");
+    }
+    catch (err) {
+        console.error("Error deleting file:", err);
+    }
+}
+
 module.exports = {
     getGames,
     getServer,
     getContainerId,
     checkName,
-    addServer
+    addServer,
+    deleteServer
 }

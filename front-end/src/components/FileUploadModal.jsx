@@ -80,7 +80,7 @@ function FileUploadModal({close, gameName, dirPath}) {
                     ) : (
                         <div className="form-input-container">
                             <label>Directory Name</label>
-                            <input type="text" name='name' placeholder="my_folder" required></input>
+                            <input type="text" name='name' placeholder="my_folder" minLength={2} pattern="[A-Za-z0-9]" required></input>
                         </div>
                     )}
                     <div className="form-input-container">

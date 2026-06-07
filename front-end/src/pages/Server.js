@@ -1,21 +1,25 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { ALERT_MODES, BACKEND_URL, SERVER_STATUS, SPINNER_SIZE } from "../constants";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { AlertContext } from "../context/AlertContext";
 import LoadingSpinner from "../components/LoadingSpinner"
 import Console from "../components/Console";
 import FileEditor from "../components/FileEditer";
+import { ConfirmationContext } from "../context/ConfirmationContext";
 
 function App() {
     const { gameName, serverName } = useParams();
     const [gameIndex, setGameIndex] = useState(0);
     const [server, setServer] = useState([]);
     const [serverLoaded, setServerLoaded] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [selectedTab, setSelectedTab] = useState("server");
     const [serverStatus, setServerStatus] = useState("N/A");
     const [logs, setLogs] = useState([]);
     const logVersion = useRef(-1);
     const sendAlert = useContext(AlertContext);
+    const confirm = useContext(ConfirmationContext);
+    const navigate = useNavigate();
 
     const getStatus = async () => {
         try {
@@ -154,6 +158,36 @@ function App() {
         }
     }
 
+    const deleteServer = async () => {
+        try {
+            const confirmed = await confirm(`Delete ${serverName} ?`, "This action can NOT be undone.");
+
+            if (confirmed) {
+                setDeleting(true);
+                
+                const res = await fetch(`${BACKEND_URL}/api/games/${gameName}/servers/${serverName}/delete`, {
+                    method: "POST"
+                });
+
+                const data = await res.json();
+                console.log(data);
+
+                if (!res.ok || res == null)
+                    throw new Error(data.message || res.status);
+
+                sendAlert(ALERT_MODES.SUCCESS, "Server deleted");
+                navigate("/dashboard");
+            }
+            else
+                sendAlert(ALERT_MODES.SUCCESS, "Deletion canceled");
+        }
+        catch (err) {
+            setDeleting(false);
+            console.log("Error: ", err);
+            sendAlert(ALERT_MODES.ERROR, err.message);
+        }
+    }
+
     useEffect(() => {
         getServer();
     }, []);
@@ -176,41 +210,56 @@ function App() {
                 <div className="tabs">
                     <ul className="tab-labels">
                         <li className={(selectedTab === "server") && "selected"} onClick={() => setSelectedTab("server")}>Server</li>
-                        <li className={(selectedTab === "config") && "selected"} onClick={() => setSelectedTab("config")}>Config</li>
                         <li className={(selectedTab === "files") && "selected"} onClick={() => setSelectedTab("files")}>Files</li>
+                        <li className={(selectedTab === "settings") && "selected"} onClick={() => setSelectedTab("settings")}>Settings</li>
                     </ul>
-                    <div className="tab-content">
-                        {selectedTab === "server" && (
-                            <>
+                    {!deleting ? (
+                        <div className="tab-content">
+                            {selectedTab === "server" && (
+                                <>
+                                    <div className="tab-container">
+                                        <p>Name: {server.name}</p>
+                                        <p>Game: {gameName}</p>
+                                        <div className="tab-button-container">
+                                        {serverStatus === SERVER_STATUS.OFFLINE ? (
+                                            <button className="start" onClick={startServer}>Start</button>
+                                        ) : serverStatus === SERVER_STATUS.ONLINE ? (
+                                            <>
+                                                <button className="stop" onClick={stopServer}>Stop</button>
+                                                <button className="kill" onClick={killServer}>Kill</button>
+                                            </>
+                                        ) : (
+                                            <LoadingSpinner size={SPINNER_SIZE.MEDIUM} text="Getting status "></LoadingSpinner>
+                                        )}
+                                    </div>
+                                    </div>
+                                    
+                                    <Console gameName={gameName} serverName={serverName} logs={logs}></Console>
+                                </>
+                            )}
+                            {selectedTab === "files" && (
+                                <FileEditor gameName={gameName} serverName={serverName} serverStatus={serverStatus}></FileEditor>
+                            )}
+                            {selectedTab === "settings" && (
                                 <div className="tab-container">
-                                    <p>Name: {server.name}</p>
-                                    <p>Game: {gameName}</p>
                                     <div className="tab-button-container">
-                                    {serverStatus === SERVER_STATUS.OFFLINE ? (
-                                        <button className="start" onClick={startServer}>Start</button>
-                                    ) : serverStatus === SERVER_STATUS.ONLINE ? (
-                                        <>
-                                            <button className="stop" onClick={stopServer}>Stop</button>
-                                            <button className="kill" onClick={killServer}>Kill</button>
-                                        </>
-                                    ) : (
-                                        <LoadingSpinner size={SPINNER_SIZE.MEDIUM} text="Getting status "></LoadingSpinner>
-                                    )}
+                                        {serverStatus === SERVER_STATUS.OFFLINE ? (
+                                            <button className="stop" onClick={deleteServer}>Delete Server</button>
+                                        ) : (
+                                            <p>Server must be offline to delete</p>
+                                        )}
+                                    </div>
                                 </div>
-                                </div>
-                                
-                                <Console gameName={gameName} serverName={serverName} logs={logs}></Console>
-                            </>
-                        )}
-                        {selectedTab === "config" && (
-                            <div className="tab-container">
-                                <p>Config</p>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="tab-container">
+                            <div className="tab-button-container">
+                                <LoadingSpinner text="Deleting" size="medium"></LoadingSpinner>
                             </div>
-                        )}
-                        {selectedTab === "files" && (
-                            <FileEditor gameName={gameName} serverName={serverName} serverStatus={serverStatus}></FileEditor>
-                        )}
-                    </div>
+                        </div>
+                    )}
+                    
                 </div>
             </div>
         </>

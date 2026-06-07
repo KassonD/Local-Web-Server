@@ -3,6 +3,7 @@ const path = require("path");
 const unzipper = require("unzipper");
 
 const serversPath = "/data/servers/"
+const packsPath = "/data/server_packs/"
 
 async function ensureFolders(dirPath) {
     const jsonUtils = require("./jsonUtils");
@@ -18,9 +19,11 @@ async function unzipServerPack(src, dest) {
     try {
         const serverZip = await unzipper.Open.file(src);
         await serverZip.extract({ path: dest });
+        return true;
     }
     catch (err) {
-        console.error("Error extracting file:", err);
+        console.log("Error extracting file:", err);
+        return false;
     }
 }
 
@@ -115,6 +118,16 @@ async function deleteDir(gameName, filePath) {
     }
 }
 
+async function deleteServer(gameName, serverName, packName) {
+    try {
+        await fs.rm(path.join(serversPath, gameName, serverName), {recursive: true});
+        await fs.unlink(path.join(packsPath, gameName, packName));
+    }
+    catch (err) {
+        console.error("Error deleting server:", err);
+    }
+}
+
 module.exports = {
     ensureFolders,
     unzipServerPack,
@@ -125,5 +138,6 @@ module.exports = {
     checkDirExists,
     addDir,
     deleteFile,
-    deleteDir
+    deleteDir,
+    deleteServer
 }

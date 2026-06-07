@@ -95,6 +95,21 @@ async function killContainer(containerId) {
     }
 }
 
+async function deleteContainer(containerId) {
+    try {
+        const container = docker.getContainer(containerId);
+
+        const data = await container.inspect();
+        if (data.State.Running)
+            await container.stop();
+        
+        await container.remove();
+    }
+    catch (err) {
+        console.error("Error deleting container:", err);
+    }
+}
+
 async function sendComand(containerId, command) {
     try {
         const container = docker.getContainer(containerId);
@@ -169,6 +184,7 @@ module.exports = {
     startContainer,
     stopContainer,
     killContainer,
+    deleteContainer,
     sendComand,
     getLogStream,
     getConsoleStream,

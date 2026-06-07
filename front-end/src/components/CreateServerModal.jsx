@@ -23,6 +23,7 @@ function CrearteServerModal({close, game}) {
                 throw new Error(data.message || res.status);
 
             setPosting(false);
+            sendAlert(ALERT_MODES.SUCCESS, "Server added!");
             close();
         }
         catch (err) {
@@ -55,7 +56,7 @@ function CrearteServerModal({close, game}) {
                 <form onSubmit={submitForm}>
                     <div className="form-input-container">
                         <label>Server Name</label>
-                        <input type="text" name='name' placeholder="My Server" required></input>
+                        <input type="text" name='name' placeholder="My Server" pattern="[A-Za-z0-9]+[A-Za-z0-9 ]*"  required></input>
                     </div>
                     <div className="form-input-container">
                         <label>Server Pack (.zip)</label>

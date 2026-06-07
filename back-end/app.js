@@ -6,6 +6,7 @@ const jsonUtils = require("./src/jsonUtils");
 const fileUtils = require("./src/fileUtils");
 const dockerUtils = require("./src/dockerUtils");
 const { spawn } = require("child_process");
+const { json } = require("stream/consumers");
 
 const app = express();
 const port = 8000;
@@ -35,7 +36,7 @@ const storage = multer.diskStorage({
         }
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname)
+        cb(null, req.body.name.replaceAll(" ", "_") + "_" + file.originalname);
     }
 })
 
@@ -175,20 +176,27 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
     try {
         const gameName = req.params.gameName;
         const serverName = await jsonUtils.checkName(gameName, req.body.name);
+        const packName = serverName + "_" + req.file.originalname;
         
         if (serverName) {
-            const src = "/data/server_packs/" + gameName + "/" + req.file.originalname;
+            const src = "/data/server_packs/" + gameName + "/" + packName;
             const dest = "/data/servers/" + gameName + "/" + serverName;
-            await fileUtils.unzipServerPack(src, dest);
+            const unzipped = await fileUtils.unzipServerPack(src, dest);
 
-            console.log("next");
+            if (unzipped) {
+                const containerId = await dockerUtils.createServerContainer(gameName, serverName, 21);
+                await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId)
 
-            const containerId = await dockerUtils.createServerContainer(gameName, serverName, 21);
-            await jsonUtils.addServer(req.body, gameName, serverName, containerId)
-
-            res.status(200).json({
-                message: "Server added"
-            });
+                res.status(200).json({
+                    message: "Server added"
+                });
+            }
+            else {
+                await fileUtils.deleteServer(gameName, serverName);
+                res.status(500).json({
+                    message: "Error while unzipping"
+                });
+            }
         }
         else {
             res.status(409).json({
@@ -387,6 +395,28 @@ app.post("/api/games/:gameName/servers/:serverName/command", upload.none(), asyn
         console.log(`Command: ${req.body.command}`);
         res.status(200).json({
             message: "Command sent"
+        });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json("An error occured");
+    }
+});
+
+app.post("/api/games/:gameName/servers/:serverName/delete", upload.none(), async (req, res) => {
+    try {
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
+
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        const server = await jsonUtils.getServer(gameName, serverName);
+
+        await dockerUtils.deleteContainer(containerId);
+        await fileUtils.deleteServer(gameName, serverName, server.pack_name);
+        await jsonUtils.deleteServer(gameName, serverName);
+
+        res.status(200).json({
+            message: "Server Deleted"
         });
     }
     catch (err) {
