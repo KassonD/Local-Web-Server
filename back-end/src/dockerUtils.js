@@ -27,8 +27,13 @@ async function createServerContainer(gameName, serverName, javaVersion, port) {
                 }
             },
             ExposedPorts: {
-                "25565/tcp": {}
-            }
+                [`${port}/tcp`]: {}
+            },
+            Env: [
+                "ATM10_RESTART=false",
+                "ATM10_INSTALL_ONLY=false",
+                "JAVA_TOOL_OPTIONS=-Djava.security.egd=file:/dev/urandom"
+            ]
         });
         
         return container.id;
