@@ -52,7 +52,7 @@ function App() {
     useEffect(() => {
         if (!showModal)
             getGames();
-    }, [showModal]);
+    }, [showModal, gameIndex]);
     
     return (
         <>

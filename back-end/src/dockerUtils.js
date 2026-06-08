@@ -138,9 +138,11 @@ async function getLogStream(containerId) {
             stdout: true,
             stderr: true
         });
+        stream.resume();
 
-        const logStream = new require("stream").PassThrough();
+        const logStream = new require("stream").PassThrough({ highWaterMark: 0 });
         container.modem.demuxStream(stream, logStream, logStream);
+        logStream.resume();
 
         return logStream;
     }
