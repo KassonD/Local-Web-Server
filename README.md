@@ -23,17 +23,47 @@
     ```bash
     cd Local-Web-Server
     ```
-    - For Linux/Mac, you also need to run `chmod +x setup.sh` so you can run the setup script
+    - For Linux/Mac, you also need to run this command to allow the execution of the setup script:
+        ```bash
+        chmod +x setup.sh
+        ``` 
 
 5. Run the setup file
-    - Windows: `setup.bat`
-    - Linux/Mac: `./setup.sh`
+    - Windows:
+        ```bash
+        setup.bat
+        ``` 
+    - Linux/Mac:
+        ```bash
+        ./setup.sh
+        ``` 
+        or
+        ```bash
+        sudo ./setup.sh
+        ``` 
+    - If the setup was unsuccessful, stop all the Docker containers, delete all Docker images and containers, then run the script again (see **Useful Commands**)
 
 6. Acces the website from another device at **"http://{HOST_DEVICE_IP}:3000"**
 
 ## Useful Commands
 - Stop all docker containers: 
-    - Windows: `powershell "docker stop $(docker ps -q)"`
-    - Linux/Mac: `docker stop $(docker ps -q)`
-- Delete all docker images and containers: `docker system prune --all --volumes`
-- Delete directories on Linux/Mac: `rm -rf <DIRECTORY_NAME>`
+    - Windows:
+        ```bash
+        powershell "docker stop $(docker ps -q)"
+        ```
+    - Linux/Mac:
+        ```bash
+        docker stop $(docker ps -q)
+        ```
+- Delete all docker images and containers:
+    ```bash
+    docker system prune --all --volumes
+    ```
+- Delete directories on Linux/Mac:
+    ```bash
+    rm -rf <DIRECTORY_NAME>
+    ```
+    or
+    ```bash
+    sudo rm -rf <DIRECTORY_NAME>
+    ```
