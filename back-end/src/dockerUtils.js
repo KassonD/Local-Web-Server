@@ -136,7 +136,8 @@ async function getLogStream(containerId) {
         const stream = await container.logs({
             follow: true,
             stdout: true,
-            stderr: true
+            stderr: true,
+            tail: 100
         });
         stream.resume();
 
