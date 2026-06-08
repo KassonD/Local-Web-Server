@@ -330,8 +330,7 @@ app.post("/api/games/:gameName/servers/:serverName/start", async (req, res) => {
         });
 
         logStream.on("close", data => {
-            server.logs = [];
-            server.logVersion++;
+            runningServers.delete(`${gameName}:${serverName}`);
         });
 
         // Success message

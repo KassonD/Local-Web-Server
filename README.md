@@ -55,6 +55,10 @@
         ```bash
         docker stop $(docker ps -q)
         ```
+- Start the important docker containers:
+    ```bash
+    docker start frontend backend
+    ```
 - Delete all docker images and containers:
     ```bash
     docker system prune --all --volumes
