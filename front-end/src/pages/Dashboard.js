@@ -10,6 +10,7 @@ function App() {
     const [showModal, setShowModal] = useState(false);
     const [games, setGames] = useState([]);
     const [gamesLoaded, setGamesLoaded] = useState(false);
+    const [filteredServers, setFilteredServers] = useState([]);
     const sendAlert = useContext(AlertContext);
 
     const getGames = async () => {
@@ -27,12 +28,25 @@ function App() {
                 throw new Error(data.message || res.status);
 
             setGames(data);
+            filterServers(data, "");
             setGamesLoaded(true);
         }
         catch (err) {
             console.log("Error: ", err);
             sendAlert(ALERT_MODES.ERROR, err.message);
         }
+    }
+
+    const filterServers = (data, name) => {
+        setFilteredServers(
+            data[gameIndex].servers.filter(server => {
+                return server.name.toLowerCase().includes(name.toLowerCase());
+            })
+        );
+    }
+
+    const setSearchInput = (event) => {
+        filterServers(games, event.target.value.replaceAll(" ", "_"));
     }
 
     useEffect(() => {
@@ -53,11 +67,11 @@ function App() {
                         <button className="primary" onClick={() => setShowModal(true)}>Create Server</button>
                     </div>
                     <div>
-                        <input type="search" className="search-server glow" placeholder="Search"></input>
+                        <input type="search" className="search-server glow" onChange={setSearchInput} placeholder="Search"></input>
                     </div>
                 </div>
                 <div className="container-servers">
-                    {gamesLoaded && games[gameIndex].servers.map((server) => (
+                    {gamesLoaded && filteredServers.map((server) => (
                         <ServerCard gameName={games[gameIndex].name} server={server}></ServerCard>
                     ))}
                 </div>

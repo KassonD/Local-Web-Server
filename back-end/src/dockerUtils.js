@@ -6,11 +6,11 @@ const serversPath = `${process.env.HOST_PATH}/data/servers`
 
 const consoleStreams = new Map();
 
-async function createServerContainer(gameName, serverName, javaVersion) {
+async function createServerContainer(gameName, serverName, javaVersion, port) {
     try {
         const container = await docker.createContainer({
             Image: `mc-java${javaVersion}`,
-            name: `mc-server-${serverName}`,
+            name: `server-${gameName}-${serverName}`,
             Cmd: ["bash", "-c", "sed -i 's/\\r//' startserver.sh && bash startserver.sh"],
             WorkingDir: `/server`,
             Tty: false,
@@ -19,9 +19,9 @@ async function createServerContainer(gameName, serverName, javaVersion) {
             HostConfig: {
                 Binds: [`${serversPath}/${gameName}/${serverName}:/server`],
                 PortBindings: {
-                    "25565/tcp": [
+                    [`${port}/tcp`]: [
                         {
-                            HostPort: "25565"
+                            HostPort: `${port}`
                         }
                     ]
                 }

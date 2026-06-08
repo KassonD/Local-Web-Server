@@ -56,11 +56,23 @@ function CrearteServerModal({close, game}) {
                 <form onSubmit={submitForm}>
                     <div className="form-input-container">
                         <label>Server Name</label>
-                        <input type="text" name='name' placeholder="My Server" pattern="[A-Za-z0-9]+[A-Za-z0-9 ]*"  required></input>
+                        <input className="glow" type="text" name='name' placeholder="My Server" pattern="[A-Za-z0-9]+[A-Za-z0-9 ]*"  required></input>
                     </div>
                     <div className="form-input-container">
                         <label>Server Pack (.zip)</label>
-                        <input type="file" name='server_pack' accept='.zip' placeholder="My Server" required></input>
+                        <input className="glow"  type="file" name='server_pack' accept='.zip' placeholder="My Server" required></input>
+                    </div>
+                    <div className="form-input-container">
+                        <label>Minecraft Version</label>
+                        <select className="glow"  name="javaVersion">
+                            <option value={21}>{"1.20.5 - current"}</option>
+                            <option value={17}>{"1.17 - 1.20.4"}</option>
+                            <option value={8}>{"1.12 - 1.16.5"}</option>
+                        </select>
+                    </div>
+                    <div className="form-input-container">
+                        <label>Port</label>
+                        <input className="glow"  type="number" name="port" placeholder="My Server" min={1} max={65535} defaultValue={25565} required></input>
                     </div>
                     <div className="form-input-container">
                         {posting ? (

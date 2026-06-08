@@ -67,7 +67,7 @@ function FileUploadModal({close, gameName, dirPath}) {
                 <form onSubmit={submitForm}>
                     <div className="form-input-container">
                         <label>Type</label>
-                        <select name="type" onChange={changeFileType}>
+                        <select className="glow"  name="type" onChange={changeFileType}>
                             <option value="file">File</option>
                             <option value="dir">Directory</option>
                         </select>
@@ -75,12 +75,12 @@ function FileUploadModal({close, gameName, dirPath}) {
                     {fileType === "file" ? (
                         <div className="form-input-container">
                             <label>Files</label>
-                            <input type="file" name="file" placeholder="My Server" multiple required></input>
+                            <input className="glow"  type="file" name="file" placeholder="My Server" multiple required></input>
                         </div>
                     ) : (
                         <div className="form-input-container">
                             <label>Directory Name</label>
-                            <input type="text" name='name' placeholder="my_folder" minLength={2} pattern="[A-Za-z0-9]" required></input>
+                            <input className="glow"  type="text" name='name' placeholder="my_folder" minLength={2} pattern="[A-Za-z0-9]" required></input>
                         </div>
                     )}
                     <div className="form-input-container">

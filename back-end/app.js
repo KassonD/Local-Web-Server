@@ -161,7 +161,7 @@ app.get("/api/games/:gameName/servers/:serverName/logs", async (req, res) => {
         const server = runningServers.get(`${req.params.gameName}:${req.params.serverName}`);
 
         res.json({
-            logs: server.logs.slice(-100),
+            logs: server.logs,
             logVersion: server.logVersion
         });
     }
@@ -184,8 +184,8 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
             const unzipped = await fileUtils.unzipServerPack(src, dest);
 
             if (unzipped) {
-                const containerId = await dockerUtils.createServerContainer(gameName, serverName, 21);
-                await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId);
+                const containerId = await dockerUtils.createServerContainer(gameName, serverName, req.body.javaVersion, req.body.port);
+                await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId, req.body.port);
 
                 res.status(200).json({
                     message: "Server added"
@@ -322,7 +322,7 @@ app.post("/api/games/:gameName/servers/:serverName/start", async (req, res) => {
         const server = runningServers.get(`${gameName}:${serverName}`);
 
         logStream.on("data", data => {
-            if (server.logs.length > 1000)
+            if (server.logs.length > 100)
                 server.logs.shift();
 
             server.logs.push(data.toString());

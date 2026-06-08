@@ -218,8 +218,20 @@ function App() {
                             {selectedTab === "server" && (
                                 <>
                                     <div className="tab-container">
-                                        <p>Name: {server.name}</p>
-                                        <p>Game: {gameName}</p>
+                                        <div className="info">
+                                            <label>Name:</label>
+                                            <p>{String(server.name).replaceAll("_", " ")}</p>
+                                        </div>
+                                        <div className="info">
+                                            <label>Game:</label>
+                                            <p>{String(gameName).replaceAll("_", " ")}</p>
+                                        </div>
+                                        <div className="info">
+                                            <label>Port:</label>
+                                            <p>{server.port}</p>
+                                        </div>
+                                    </div>
+                                    <div className="tab-container">
                                         <div className="tab-button-container">
                                         {serverStatus === SERVER_STATUS.OFFLINE ? (
                                             <button className="start" onClick={startServer}>Start</button>

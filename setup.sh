@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo "HOST_PATH=$(pwd)" > .env
 echo "Set up complete. Set HOST_PATH to $(pwd)"

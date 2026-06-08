@@ -89,6 +89,9 @@ select:focus {
   background-color: var(--secondary-gray);
   outline: none;
 }
+select.glow:focus {
+  box-shadow: 0 0 10px var(--glow);
+}
 
 li.selected {
   color: mediumslateblue;
@@ -481,18 +484,33 @@ button.icon {
   background-color: var(--medium-gray);
   border-radius: 10px;
 }
+
 .tab-container {
   background-color: var(--heavy-gray);
   border: 1px solid var(--secondary-gray);
+  display: flex;
+  justify-content: space-around;
   margin: 16px 0;
   padding:16px;
   border-radius: 10px;
 }
+
 .tab-button-container {
   display: flex;
   justify-content: center;
   margin: 16px 0;
   gap: 32px;
+}
+
+div.info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  gap: 8px;
+}
+.info label {
+  font-weight: bold;
 }
 
 .console {

@@ -25,3 +25,15 @@ services:
       context: ./docker_images/java21
     profiles:
       - build-only
+  mc-java17:
+    image: mc-java17
+    build:
+      context: ./docker_images/java17
+    profiles:
+      - build-only
+  mc-java8:
+    image: mc-java8
+    build:
+      context: ./docker_images/java8
+    profiles:
+      - build-only

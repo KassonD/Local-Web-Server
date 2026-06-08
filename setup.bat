@@ -5,9 +5,11 @@ echo HOST_PATH was set to %CD%
 
 echo Creating images...
 docker compose --profile "*" build
+if %errorlevel% neq 0 exit /b 1
 
 echo Creating containers...
 docker compose up -d
+if %errorlevel% neq 0 exit /b 1
 
 echo.
 echo Setup complete!
