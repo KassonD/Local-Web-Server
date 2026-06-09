@@ -14,8 +14,8 @@ async function createServerContainer(gameName, serverName, javaVersion, port) {
             Cmd: ["bash", "-c", "sed -i 's/\\r//' startserver.sh && bash startserver.sh"],
             WorkingDir: `/server`,
             Tty: false,
-            OpenStdin: true,
-            AttachStdin: true,
+            OpenStdin: false,
+            AttachStdin: false,
             HostConfig: {
                 Binds: [`${serversPath}/${gameName}/${serverName}:/server`],
                 PortBindings: {
@@ -69,21 +69,7 @@ async function startContainer(containerId) {
 async function stopContainer(containerId) {
     try {
         const container = docker.getContainer(containerId);
-        const stream = consoleStreams.get(containerId);
-
-        // console.log("Writable:", stream.writable);
-        // console.log("command:", "stop");
-
-        // const result = stream.write("stop\n");
-        // console.log("Result:", result);
-        const exec = await container.exec({
-            AttachStdin: false,
-            AttachStdout: false,
-            AttachStderr: false,
-            Cmd: ["bash", "-c", `echo "stop" > /proc/1/fd/0`]
-        });
-
-        await exec.start();
+        await container.stop();
     }
     catch (err) {
         console.error("Error stopping container:", err);
