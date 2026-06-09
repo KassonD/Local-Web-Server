@@ -14,8 +14,8 @@ async function createServerContainer(gameName, serverName, javaVersion, port) {
             Cmd: ["bash", "-c", "sed -i 's/\\r//' startserver.sh && bash startserver.sh"],
             WorkingDir: `/server`,
             Tty: false,
-            OpenStdin: false,
-            AttachStdin: false,
+            OpenStdin: true,
+            AttachStdin: true,
             HostConfig: {
                 Binds: [`${serversPath}/${gameName}/${serverName}:/server`],
                 PortBindings: {

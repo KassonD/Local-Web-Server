@@ -318,20 +318,20 @@ app.post("/api/games/:gameName/servers/:serverName/start", async (req, res) => {
         });
 
         // Store logs
-        // const logStream = await dockerUtils.getLogStream(containerId);
-        // const server = runningServers.get(`${gameName}:${serverName}`);
+        const logStream = await dockerUtils.getLogStream(containerId);
+        const server = runningServers.get(`${gameName}:${serverName}`);
 
-        // logStream.on("data", data => {
-        //     if (server.logs.length > 100)
-        //         server.logs.shift();
+        logStream.on("data", data => {
+            if (server.logs.length > 100)
+                server.logs.shift();
 
-        //     server.logs.push(data.toString());
-        //     server.logVersion++;
-        // });
+            server.logs.push(data.toString());
+            server.logVersion++;
+        });
 
-        // logStream.on("close", data => {
-        //     runningServers.delete(`${gameName}:${serverName}`);
-        // });
+        logStream.on("close", data => {
+            runningServers.delete(`${gameName}:${serverName}`);
+        });
 
         // Success message
         console.log(`Starting ${serverName} from ${gameName}...`)
