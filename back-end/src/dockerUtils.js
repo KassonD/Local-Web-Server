@@ -17,10 +17,6 @@ async function createServerContainer(gameName, serverName, javaVersion, port) {
             OpenStdin: true,
             AttachStdin: true,
             HostConfig: {
-                Memory: 4 * 1024 * 1024 * 1024,
-                MemorySwap: 4 * 1024 * 1024 * 1024,
-                CpuQuota: 200000,
-                CpuPeriod: 100000,
                 Binds: [`${serversPath}/${gameName}/${serverName}:/server`],
                 PortBindings: {
                     [`${port}/tcp`]: [
