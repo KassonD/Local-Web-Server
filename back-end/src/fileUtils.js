@@ -1,6 +1,7 @@
 const fs = require("fs").promises;
 const path = require("path");
 const unzipper = require("unzipper");
+const { types } = require("./serverTypes");
 
 const serversPath = "/data/servers/"
 const packsPath = "/data/server_packs/"
@@ -24,6 +25,25 @@ async function unzipServerPack(src, dest) {
     catch (err) {
         console.log("Error extracting file:", err);
         return false;
+    }
+}
+
+async function detectServerType(gameName, serverName) {
+    try {
+        const files = await fs.readdir(path.join(serversPath, gameName, serverName, "/"));
+
+        const forgeInstaller = files.find(file => /^forge-.*-installer\.jar/i.test(file));
+        if (forgeInstaller)
+            return {type: types.FORGE.label, installer: forgeInstaller};
+        
+        const neoforgeInstaller = files.find(file => /^neoforge-.*-installer\.jar/i.test(file));
+        if (neoforgeInstaller)
+            return {type: types.NEOFORGE.label, installer: neoforgeInstaller};
+
+        return {type: types.VANILLA.label};
+    }
+    catch (err) {
+        console.error("Error reading file:", err);
     }
 }
 
@@ -131,6 +151,7 @@ async function deleteServer(gameName, serverName, packName) {
 module.exports = {
     ensureFolders,
     unzipServerPack,
+    detectServerType,
     getDirContent,
     getFileContent,
     saveFileContent,

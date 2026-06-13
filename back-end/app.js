@@ -5,8 +5,10 @@ const path = require("path");
 const jsonUtils = require("./src/jsonUtils");
 const fileUtils = require("./src/fileUtils");
 const dockerUtils = require("./src/dockerUtils");
+const serverTypes = require("./src/serverTypes");
 const { spawn } = require("child_process");
 const { json } = require("stream/consumers");
+
 
 const app = express();
 const port = 8000;
@@ -14,6 +16,7 @@ const port = 8000;
 // Ensure folders
 (async () => {
     fileUtils.ensureFolders();
+    serverTypes.refreshVersions();
 })();
 
 // Sets server port
@@ -98,6 +101,18 @@ app.get("/api/games/:gameName/servers/dir", async (req, res) => {
     }
 });
 
+app.get("/api/games/:gameName/versions", async (req, res) => {
+    try {
+        const versions = serverTypes.types.VANILLA.versions;
+
+        res.json(versions);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json("An error occured");
+    }
+});
+
 app.get("/api/games/:gameName/servers/file", async (req, res) => {
     try {
         const filePath = req.query.path;
@@ -172,6 +187,34 @@ app.get("/api/games/:gameName/servers/:serverName/logs", async (req, res) => {
 });
 
 // Post
+// app.post("/api/games/:gameName/servers", upload.none(), async (req, res) => {
+//     try {
+//         const gameName = req.params.gameName;
+//         const serverName = await jsonUtils.checkName(gameName, req.body.name);
+        
+//         if (serverName) {
+//             await fileUtils.addDir(gameName, serverName);
+
+//             const containerId = await dockerUtils.createServerContainer(gameName, serverName, "NEOFORGE", "1.21.1", "8G", req.body.port);
+//             await jsonUtils.addServer(req.body, gameName, serverName, containerId, req.body.port);
+
+//             res.status(200).json({
+//                 message: "Server added"
+//             });
+//         }
+//         else {
+//             res.status(409).json({
+//                 message: "A server already goes by that name"
+//             });
+//         }
+//     }
+//     catch (err) {
+//         console.error(err);
+//         res.status(500).json({
+//             message: "An error occured"
+//         });
+//     }
+// });
 app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (req, res) => {
     try {
         const gameName = req.params.gameName;
@@ -184,7 +227,9 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
             const unzipped = await fileUtils.unzipServerPack(src, dest);
 
             if (unzipped) {
-                const containerId = await dockerUtils.createServerContainer(gameName, serverName, req.body.javaVersion, req.body.port);
+                const detected = await fileUtils.detectServerType(gameName, serverName);
+
+                const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, req.body.version, req.body.memory, req.body.port);
                 await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId, req.body.port);
 
                 res.status(200).json({

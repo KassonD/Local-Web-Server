@@ -6,18 +6,29 @@ const serversPath = `${process.env.HOST_PATH}/data/servers`
 
 const consoleStreams = new Map();
 
-async function createServerContainer(gameName, serverName, javaVersion, port) {
+async function createServerContainer(gameName, serverName, detected, version, memory, port) {
     try {
+        const env = [
+            "EULA=TRUE",
+            `VERSION=${version}`,
+            `TYPE=${detected.type}`,
+            `MEMORY=${memory}`,
+            "SKIP_SERVER_PROPERTIES=TRUE",
+            "CREATE_CONSOLE_IN_PIPE=true"
+        ];
+        console.log(detected, env);
+
+        if (detected.installer)
+            env.push(`${detected.type}_INSTALLER=/data/${detected.installer}`);
+
         const container = await docker.createContainer({
-            Image: `mc-java${javaVersion}`,
+            Image: "mc-server",
             name: `server-${gameName}-${serverName}`,
-            Cmd: ["bash", "-c", "sed -i 's/\\r//' startserver.sh && bash startserver.sh"],
-            WorkingDir: `/server`,
-            Tty: false,
-            OpenStdin: true,
-            AttachStdin: true,
+            Tty: true,
+            OpenStdin: false,
+            AttachStdin: false,
             HostConfig: {
-                Binds: [`${serversPath}/${gameName}/${serverName}:/server`],
+                Binds: [`${serversPath}/${gameName}/${serverName}:/data`],
                 PortBindings: {
                     [`${port}/tcp`]: [
                         {
@@ -28,7 +39,8 @@ async function createServerContainer(gameName, serverName, javaVersion, port) {
             },
             ExposedPorts: {
                 [`${port}/tcp`]: {}
-            }
+            },
+            Env: env
         });
         
         return container.id;
@@ -99,14 +111,13 @@ async function deleteContainer(containerId) {
 async function sendComand(containerId, command) {
     try {
         const container = docker.getContainer(containerId);
-        // const stream = consoleStreams.get(containerId);
 
-        // stream.write(`${command}\n`);
         const exec = await container.exec({
             AttachStdin: false,
             AttachStdout: false,
             AttachStderr: false,
-            Cmd: ["bash", "-c", `echo "${command}" > /proc/1/fd/0`]
+            User: "1000",
+            Cmd: ["mc-send-to-console", command]
         });
 
         await exec.start();
@@ -127,11 +138,7 @@ async function getLogStream(containerId) {
         });
         stream.resume();
 
-        const logStream = new require("stream").PassThrough({ highWaterMark: 0 });
-        container.modem.demuxStream(stream, logStream, logStream);
-        logStream.resume();
-
-        return logStream;
+        return stream;
     }
     catch (err) {
         console.error("Error getting log stream:", err);

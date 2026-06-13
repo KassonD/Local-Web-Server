@@ -1,11 +1,32 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import LoadingSpinner from "./LoadingSpinner";
 import { BACKEND_URL, ALERT_MODES } from '../constants';
 import { AlertContext } from '../context/AlertContext';
 
 function CrearteServerModal({close, game}) {
+    const [versions, setVersions] = useState([]);
     const [posting, setPosting] = useState(false);
     const sendAlert = useContext(AlertContext);
+
+    const getVersions = async () => {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/games/${game}/versions`, {
+                method: "GET"
+            });
+
+            const data = await res.json();
+            console.log(data);
+
+            if (!res.ok || res == null)
+                throw new Error(data.message || res.status);
+
+            setVersions(data);
+        }
+        catch (err) {
+            console.log("Error: ", err);
+            sendAlert(ALERT_MODES.ERROR, err.message);
+        }
+    }
 
     const postServer = async (formData) => {
         try {
@@ -37,9 +58,14 @@ function CrearteServerModal({close, game}) {
         event.preventDefault();
 
         const formData = new FormData(event.target);
+        formData.append("memory", `${formData.get("memoryAmount")}G`)
         console.log(formData)
         postServer(formData);
     }
+
+    useEffect(() => {
+        getVersions();
+    }, []);
 
     return (
         <>
@@ -64,11 +90,15 @@ function CrearteServerModal({close, game}) {
                     </div>
                     <div className="form-input-container">
                         <label>Minecraft Version</label>
-                        <select className="glow"  name="javaVersion">
-                            <option value={21}>{"1.20.5 - current"}</option>
-                            <option value={17}>{"1.17 - 1.20.4"}</option>
-                            <option value={8}>{"1.12 - 1.16.5"}</option>
+                        <select className="glow" name="version">
+                        {versions.map((version) => 
+                            <option value={version}>{version}</option>
+                        )}
                         </select>
+                    </div>
+                    <div className="form-input-container">
+                        <label>Memory (GB)</label>
+                        <input className="glow"  type="number" name="memoryAmount" placeholder="My Server" min={2} max={16} defaultValue={8} required></input>
                     </div>
                     <div className="form-input-container">
                         <label>Port</label>
