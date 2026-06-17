@@ -4,7 +4,37 @@ const docker = new Docker({ socketPath: "/var/run/docker.sock" });
 
 const serversPath = `${process.env.HOST_PATH}/data/servers`
 
-const consoleStreams = new Map();
+async function pullServerImages() {
+    const imageNames = [
+        "itzg/minecraft-server:java21",
+        "itzg/minecraft-server:java17",
+        "itzg/minecraft-server:java8"
+    ]
+
+    for (const name of imageNames) {
+        try {
+            await docker.getImage(name).inspect();
+        }
+        catch {
+            await new Promise((resolve, reject) => {
+                docker.pull(name, (err, stream) =>{
+                    if (err)
+                        console.error("Error starting container:", err);
+                    else {
+                        docker.modem.followProgress(stream, (err) => {
+                            if (err)
+                                console.error("Error starting container:", err);
+                            else {
+                                console.log(`${name} pulled successfully`);
+                            }
+                        })
+                    }
+                })
+            })
+        }
+        
+    }
+}
 
 async function createServerContainer(gameName, serverName, detected, version, memory, port) {
     try {
@@ -14,7 +44,7 @@ async function createServerContainer(gameName, serverName, detected, version, me
             `TYPE=${detected.type}`,
             `MEMORY=${memory}`,
             "SKIP_SERVER_PROPERTIES=TRUE",
-            "CREATE_CONSOLE_IN_PIPE=true"
+            // "CREATE_CONSOLE_IN_PIPE=true"
         ];
         console.log(detected, env);
 
@@ -22,7 +52,7 @@ async function createServerContainer(gameName, serverName, detected, version, me
             env.push(`${detected.type}_INSTALLER=/data/${detected.installer}`);
 
         const container = await docker.createContainer({
-            Image: "mc-server",
+            Image: "itzg/minecraft-server:java21",
             name: `server-${gameName}-${serverName}`,
             Tty: true,
             OpenStdin: false,
@@ -54,19 +84,6 @@ async function startContainer(containerId) {
     try {
         const container = docker.getContainer(containerId);
         await container.start();
-
-        const stream = await container.attach({
-            stream: true,
-            stdin: true,
-            stdout: true,
-            stderr: true
-        });
-
-        stream.on("close", () => {
-            consoleStreams.delete(containerId);
-        });
-
-        consoleStreams.set(containerId, stream);
     }
     catch (err) {
         console.error("Error starting container:", err);
@@ -145,23 +162,6 @@ async function getLogStream(containerId) {
     }
 }
 
-async function getConsoleStream(containerId) {
-    try {
-        const container = docker.getContainer(containerId);
-        const stream = await container.attach({
-            stream: true,
-            stdin: true,
-            stdout: true,
-            stderr: true
-        });
-
-        return stream;
-    }
-    catch (err) {
-        console.error("Error getting console stream:", err);
-    }
-}
-
 async function getStatus(containerId) {
     try {
         const container = docker.getContainer(containerId);
@@ -176,6 +176,7 @@ async function getStatus(containerId) {
 }
 
 module.exports = {
+    pullServerImages,
     createServerContainer,
     startContainer,
     stopContainer,
@@ -183,6 +184,5 @@ module.exports = {
     deleteContainer,
     sendComand,
     getLogStream,
-    getConsoleStream,
     getStatus
 }

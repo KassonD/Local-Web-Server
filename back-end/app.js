@@ -16,6 +16,7 @@ const port = 8000;
 // Ensure folders
 (async () => {
     fileUtils.ensureFolders();
+    dockerUtils.pullServerImages();
     serverTypes.refreshVersions();
 })();
 
@@ -220,6 +221,7 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
         const gameName = req.params.gameName;
         const serverName = await jsonUtils.checkName(gameName, req.body.name);
         const packName = serverName + "_" + req.file.originalname;
+        const version = req.body.version;
         
         if (serverName) {
             const src = "/data/server_packs/" + gameName + "/" + packName;
@@ -229,7 +231,7 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
             if (unzipped) {
                 const detected = await fileUtils.detectServerType(gameName, serverName);
 
-                const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, req.body.version, req.body.memory, req.body.port);
+                const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, version, req.body.memory, req.body.port);
                 await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId, req.body.port);
 
                 res.status(200).json({

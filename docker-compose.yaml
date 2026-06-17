@@ -19,12 +19,12 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-  mc-server:
-    image: mc-server
-    build:
-      context: ./docker_images/itzg
-    profiles:
-      - build-only
+  # mc-server:
+  #   image: mc-server
+  #   build:
+  #     context: ./docker_images/itzg
+  #   profiles:
+  #     - build-only
   # mc-java21:
   #   image: mc-java21
   #   build:
