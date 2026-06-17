@@ -44,7 +44,7 @@ async function createServerContainer(gameName, serverName, detected, version, me
             `TYPE=${detected.type}`,
             `MEMORY=${memory}`,
             "SKIP_SERVER_PROPERTIES=TRUE",
-            // "CREATE_CONSOLE_IN_PIPE=true"
+            "CREATE_CONSOLE_IN_PIPE=true"
         ];
         console.log(detected, env);
 
@@ -84,6 +84,19 @@ async function startContainer(containerId) {
     try {
         const container = docker.getContainer(containerId);
         await container.start();
+
+        // const stream = await container.attach({
+        //     stream: true,
+        //     stdin: true,
+        //     stdout: true,
+        //     stderr: true
+        // });
+
+        // stream.on("close", () => {
+        //     consoleStreams.delete(containerId);
+        // });
+
+        // consoleStreams.set(containerId, stream);
     }
     catch (err) {
         console.error("Error starting container:", err);
