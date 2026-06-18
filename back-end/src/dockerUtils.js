@@ -6,12 +6,14 @@ const serversPath = `${process.env.HOST_PATH}/data/servers`
 
 async function pullServerImages() {
     const imageNames = [
+        "itzg/minecraft-server:latest",
         "itzg/minecraft-server:java21",
         "itzg/minecraft-server:java17",
         "itzg/minecraft-server:java8"
     ]
 
     for (const name of imageNames) {
+        console.log(name);
         try {
             await docker.getImage(name).inspect();
         }
@@ -23,21 +25,30 @@ async function pullServerImages() {
                     else {
                         docker.modem.followProgress(stream, (err) => {
                             if (err)
-                                console.error("Error starting container:", err);
+                                return reject(err);
                             else {
                                 console.log(`${name} pulled successfully`);
+                                return resolve();
                             }
                         })
                     }
                 })
             })
-        }
-        
+        } 
     }
 }
 
 async function createServerContainer(gameName, serverName, detected, version, memory, port) {
     try {
+        let javaVersion = "latest";
+        if (version <= "1.17.1")
+            javaVersion = "java8";
+        else if (version <= "1.20.4")
+            javaVersion = "java17";
+        else if (version <= "1.21.11")
+            javaVersion = "java21";
+        console.log(version, javaVersion, `itzg/minecraft-server:${javaVersion}`);
+
         const env = [
             "EULA=TRUE",
             `VERSION=${version}`,
@@ -52,7 +63,7 @@ async function createServerContainer(gameName, serverName, detected, version, me
             env.push(`${detected.type}_INSTALLER=/data/${detected.installer}`);
 
         const container = await docker.createContainer({
-            Image: "itzg/minecraft-server:java21",
+            Image: `itzg/minecraft-server:${javaVersion}`,
             name: `server-${gameName}-${serverName}`,
             Tty: true,
             OpenStdin: false,

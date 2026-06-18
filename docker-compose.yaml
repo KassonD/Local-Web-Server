@@ -19,27 +19,3 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-  # mc-server:
-  #   image: mc-server
-  #   build:
-  #     context: ./docker_images/itzg
-  #   profiles:
-  #     - build-only
-  # mc-java21:
-  #   image: mc-java21
-  #   build:
-  #     context: ./docker_images/java21
-  #   profiles:
-  #     - build-only
-  # mc-java17:
-  #   image: mc-java17
-  #   build:
-  #     context: ./docker_images/java17
-  #   profiles:
-  #     - build-only
-  # mc-java8:
-  #   image: mc-java8
-  #   build:
-  #     context: ./docker_images/java8
-  #   profiles:
-  #     - build-only

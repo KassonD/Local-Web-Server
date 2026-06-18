@@ -86,7 +86,7 @@ function CrearteServerModal({close, game}) {
                     </div>
                     <div className="form-input-container">
                         <label>Server Pack (.zip)</label>
-                        <input className="glow"  type="file" name='server_pack' accept='.zip' placeholder="My Server" required></input>
+                        <input className="glow"  type="file" name='server_pack' accept='.zip' required></input>
                     </div>
                     <div className="form-input-container">
                         <label>Minecraft Version</label>
@@ -98,11 +98,11 @@ function CrearteServerModal({close, game}) {
                     </div>
                     <div className="form-input-container">
                         <label>Memory (GB)</label>
-                        <input className="glow"  type="number" name="memoryAmount" placeholder="My Server" min={2} max={16} defaultValue={8} required></input>
+                        <input className="glow"  type="number" name="memoryAmount" min={2} max={16} defaultValue={8} required></input>
                     </div>
                     <div className="form-input-container">
                         <label>Port</label>
-                        <input className="glow"  type="number" name="port" placeholder="My Server" min={1} max={65535} defaultValue={25565} required></input>
+                        <input className="glow"  type="number" name="port" min={1} max={65535} defaultValue={25565} required></input>
                     </div>
                     <div className="form-input-container">
                         {posting ? (

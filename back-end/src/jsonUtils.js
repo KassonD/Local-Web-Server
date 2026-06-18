@@ -69,7 +69,7 @@ async function checkName(gameName, serverName) {
     }
 }
 
-async function addServer(newData, gameName, serverName, packName, containerId, port) {
+async function addServer(gameName, serverName, packName, version, memory, port, containerId) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
         const serverData = await JSON.parse(data); 
@@ -78,8 +78,10 @@ async function addServer(newData, gameName, serverName, packName, containerId, p
         const pushData = {
             "name": serverName,
             "pack_name": packName,
-            "container_id": containerId,
+            "version": version,
+            "memory": memory,
             "port": port,
+            "container_id": containerId,
             "image_url": `/images/defaults/${gameName}_default.png`
         }
         servers.push(pushData)

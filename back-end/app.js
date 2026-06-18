@@ -13,11 +13,13 @@ const { json } = require("stream/consumers");
 const app = express();
 const port = 8000;
 
-// Ensure folders
+// Ensure
+let startupComplete = false;
 (async () => {
-    fileUtils.ensureFolders();
-    dockerUtils.pullServerImages();
-    serverTypes.refreshVersions();
+    await fileUtils.ensureFolders();
+    await dockerUtils.pullServerImages();
+    await serverTypes.refreshVersions();
+    startupComplete = true;
 })();
 
 // Sets server port
@@ -78,6 +80,16 @@ app.use(express.static("/data/public"));
 // app.use(express.urlencoded({ extended: true }))
 
 // Get
+app.get("/api/loaded", async (req, res) => {
+    try {
+        res.json(startupComplete);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json("An error occured");
+    }
+});
+
 app.get("/api/games", async (req, res) => {
     try {
         const games = await jsonUtils.getGames();
@@ -222,6 +234,8 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
         const serverName = await jsonUtils.checkName(gameName, req.body.name);
         const packName = serverName + "_" + req.file.originalname;
         const version = req.body.version;
+        const memory = req.body.memory;
+        const serverPort = req.body.port;
         
         if (serverName) {
             const src = "/data/server_packs/" + gameName + "/" + packName;
@@ -231,8 +245,8 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
             if (unzipped) {
                 const detected = await fileUtils.detectServerType(gameName, serverName);
 
-                const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, version, req.body.memory, req.body.port);
-                await jsonUtils.addServer(req.body, gameName, serverName, packName, containerId, req.body.port);
+                const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, version, memory, serverPort);
+                await jsonUtils.addServer(gameName, serverName, packName, version, memory, serverPort, containerId);
 
                 res.status(200).json({
                     message: "Server added"

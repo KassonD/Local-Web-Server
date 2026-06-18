@@ -227,8 +227,8 @@ function App() {
                                             <p>{String(gameName).replaceAll("_", " ")}</p>
                                         </div>
                                         <div className="info">
-                                            <label>Port:</label>
-                                            <p>{server.port}</p>
+                                            <label>Version:</label>
+                                            <p>{server.version}</p>
                                         </div>
                                     </div>
                                     <div className="tab-container">
@@ -245,7 +245,6 @@ function App() {
                                         )}
                                     </div>
                                     </div>
-                                    
                                     <Console gameName={gameName} serverName={serverName} logs={logs}></Console>
                                 </>
                             )}
@@ -253,15 +252,27 @@ function App() {
                                 <FileEditor gameName={gameName} serverName={serverName} serverStatus={serverStatus}></FileEditor>
                             )}
                             {selectedTab === "settings" && (
-                                <div className="tab-container">
-                                    <div className="tab-button-container">
-                                        {serverStatus === SERVER_STATUS.OFFLINE ? (
-                                            <button className="stop" onClick={deleteServer}>Delete Server</button>
-                                        ) : (
-                                            <p>Server must be offline to delete</p>
-                                        )}
+                                <>
+                                    <div className="tab-container">
+                                        <div className="info">
+                                            <label>Memory:</label>
+                                            <input className="glow" type="text" name='memory' defaultValue={server.memory} readOnly></input>
+                                        </div>
+                                        <div className="info">
+                                            <label>Port:</label>
+                                            <input className="glow" type="text" name='port' defaultValue={server.port} readOnly></input>
+                                        </div>
                                     </div>
-                                </div>
+                                    <div className="tab-container">
+                                        <div className="tab-button-container">
+                                            {serverStatus === SERVER_STATUS.OFFLINE ? (
+                                                <button className="stop" onClick={deleteServer}>Delete Server</button>
+                                            ) : (
+                                                <p>Server must be offline to delete</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     ) : (
