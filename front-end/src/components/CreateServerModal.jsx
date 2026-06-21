@@ -6,6 +6,8 @@ import { AlertContext } from '../context/AlertContext';
 function CrearteServerModal({close, game}) {
     const [versions, setVersions] = useState([]);
     const [posting, setPosting] = useState(false);
+    const [modded, setModded] = useState(true);
+    const [maxMemory, setMaxMemory] = useState(8);
     const sendAlert = useContext(AlertContext);
 
     const getVersions = async () => {
@@ -32,7 +34,9 @@ function CrearteServerModal({close, game}) {
         try {
             setPosting(true);
 
-            const res = await fetch(`${BACKEND_URL}/api/games/${game}/servers`, {
+            const typePath = modded ? "servers" : "servers/vanilla"
+
+            const res = await fetch(`${BACKEND_URL}/api/games/${game}/${typePath}`, {
                 method: "POST",
                 body: formData
             });
@@ -58,10 +62,19 @@ function CrearteServerModal({close, game}) {
         event.preventDefault();
 
         const formData = new FormData(event.target);
-        formData.append("memory", `${formData.get("memoryAmount")}G`)
         console.log(formData)
         postServer(formData);
     }
+
+    const setModdedInput = (event) => {
+        console.log(event.target.checked);
+        setModded(event.target.checked);
+    } 
+
+    const setMaxMemoryInput = (event) => {
+        console.log(event.target.checked);
+        setMaxMemory(event.target.value);
+    } 
 
     useEffect(() => {
         getVersions();
@@ -84,10 +97,16 @@ function CrearteServerModal({close, game}) {
                         <label>Server Name</label>
                         <input className="glow" type="text" name='name' placeholder="My Server" pattern="[A-Za-z0-9]+[A-Za-z0-9 ]*"  required></input>
                     </div>
-                    <div className="form-input-container">
-                        <label>Server Pack (.zip)</label>
-                        <input className="glow"  type="file" name='server_pack' accept='.zip' required></input>
+                    <div className="form-input-container checkBox-and-label">
+                        <label>Modded</label>
+                        <input type="checkbox" name='modded' onChange={setModdedInput} defaultChecked={true}></input>
                     </div>
+                    {modded &&
+                        <div className="form-input-container">
+                            <label>Server Pack (.zip)</label>
+                            <input className="glow"  type="file" name='server_pack' accept='.zip' required></input>
+                        </div>
+                    }
                     <div className="form-input-container">
                         <label>Minecraft Version</label>
                         <select className="glow" name="version">
@@ -97,8 +116,12 @@ function CrearteServerModal({close, game}) {
                         </select>
                     </div>
                     <div className="form-input-container">
-                        <label>Memory (GB)</label>
-                        <input className="glow"  type="number" name="memoryAmount" min={2} max={16} defaultValue={8} required></input>
+                        <label>Initial Memory (GB)</label>
+                        <input className="glow"  type="number" name="memInit" min={2} max={maxMemory} defaultValue={4} required></input>
+                    </div>
+                    <div className="form-input-container">
+                        <label>Maximum Memory (GB)</label>
+                        <input className="glow"  type="number" name="memMax" min={2} max={16} defaultValue={maxMemory} onChange={setMaxMemoryInput} required></input>
                     </div>
                     <div className="form-input-container">
                         <label>Port</label>

@@ -47,6 +47,28 @@ async function getContainerId(gameName, serverName) {
     }
 }
 
+async function editSettings(gameName, serverName, memory, serverPort, containerId) {
+    try {
+        const data = await fs.readFile(serverDataPath, "utf8");
+        const serverData = await JSON.parse(data);
+        const game = serverData.games.find(game => game.name === gameName);
+        const server = game.servers.find(server => server.name === serverName);
+
+        server.container_id = containerId;
+        server.port = serverPort;
+        server.memory = {
+            "init": memory.init,
+            "max": memory.max
+        };
+
+        fs.writeFile(serverDataPath, JSON.stringify(serverData, null, 2));
+    }
+    catch (err) {
+        console.error("Error reading file:", err);
+        return;
+    }
+}
+
 async function checkName(gameName, serverName) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
@@ -69,7 +91,7 @@ async function checkName(gameName, serverName) {
     }
 }
 
-async function addServer(gameName, serverName, packName, version, memory, port, containerId) {
+async function addServer(gameName, serverName, packName, type, version, memory, port, containerId) {
     try {
         const data = await fs.readFile(serverDataPath, "utf8");
         const serverData = await JSON.parse(data); 
@@ -78,6 +100,7 @@ async function addServer(gameName, serverName, packName, version, memory, port, 
         const pushData = {
             "name": serverName,
             "pack_name": packName,
+            "type": type,
             "version": version,
             "memory": memory,
             "port": port,
@@ -117,6 +140,7 @@ module.exports = {
     getGames,
     getServer,
     getContainerId,
+    editSettings,
     checkName,
     addServer,
     deleteServer

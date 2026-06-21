@@ -53,7 +53,8 @@ async function createServerContainer(gameName, serverName, detected, version, me
             "EULA=TRUE",
             `VERSION=${version}`,
             `TYPE=${detected.type}`,
-            `MEMORY=${memory}`,
+            `INIT_MEMORY=${memory.init}G`,
+            `MAX_MEMORY=${memory.max}G`,
             "SKIP_SERVER_PROPERTIES=TRUE",
             "CREATE_CONSOLE_IN_PIPE=true"
         ];
@@ -88,6 +89,54 @@ async function createServerContainer(gameName, serverName, detected, version, me
     }
     catch (err) {
         console.error("Error creating container:", err);
+    }
+}
+
+async function remakeServerContainer(gameName, serverName, containerId, memory, port) {
+    try {
+        const oldContainer = docker.getContainer(containerId);
+        const oldInfo = await oldContainer.inspect();
+
+        let env = oldInfo.Config.Env;
+        env = env.map(value => {
+            if (value.startsWith("INIT_MEMORY"))
+                return `INIT_MEMORY=${memory.init}G`;
+
+            if (value.startsWith("MAX_MEMORY"))
+                return `MAX_MEMORY=${memory.max}G`;
+            
+            return value;
+        });
+        console.log(env);
+
+        await oldContainer.remove();
+
+        const container = await docker.createContainer({
+            Image: oldInfo.Config.Image,
+            name: `server-${gameName}-${serverName}`,
+            Tty: true,
+            OpenStdin: false,
+            AttachStdin: false,
+            HostConfig: {
+                Binds: [`${serversPath}/${gameName}/${serverName}:/data`],
+                PortBindings: {
+                    [`${port}/tcp`]: [
+                        {
+                            HostPort: `${port}`
+                        }
+                    ]
+                }
+            },
+            ExposedPorts: {
+                [`${port}/tcp`]: {}
+            },
+            Env: env
+        });
+        
+        return container.id;
+    }
+    catch (err) {
+        console.error("Error remaking container:", err);
     }
 }
 
@@ -202,6 +251,7 @@ async function getStatus(containerId) {
 module.exports = {
     pullServerImages,
     createServerContainer,
+    remakeServerContainer,
     startContainer,
     stopContainer,
     killContainer,

@@ -234,7 +234,7 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
         const serverName = await jsonUtils.checkName(gameName, req.body.name);
         const packName = serverName + "_" + req.file.originalname;
         const version = req.body.version;
-        const memory = req.body.memory;
+        const memory = {"init": req.body.memInit, "max": req.body.memMax};
         const serverPort = req.body.port;
         
         if (serverName) {
@@ -245,12 +245,20 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
             if (unzipped) {
                 const detected = await fileUtils.detectServerType(gameName, serverName);
 
-                const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, version, memory, serverPort);
-                await jsonUtils.addServer(gameName, serverName, packName, version, memory, serverPort, containerId);
+                if (detected) {
+                    const containerId = await dockerUtils.createServerContainer(gameName, serverName, detected, version, memory, serverPort);
+                    await jsonUtils.addServer(gameName, serverName, packName, detected.type, version, memory, serverPort, containerId);
 
-                res.status(200).json({
-                    message: "Server added"
-                });
+                    res.status(200).json({
+                        message: "Server added"
+                    });
+                }
+                else {
+                    await fileUtils.deleteServer(gameName, serverName, packName);
+                    res.status(500).json({
+                        message: "Error while detecting server type"
+                    });
+                }
             }
             else {
                 await fileUtils.deleteServer(gameName, serverName, packName);
@@ -272,6 +280,39 @@ app.post("/api/games/:gameName/servers", upload.single("server_pack"), async (re
         });
     }
 });
+
+app.post("/api/games/:gameName/servers/vanilla", upload.none(), async (req, res) => {
+    try {
+        const gameName = req.params.gameName;
+        const serverName = await jsonUtils.checkName(gameName, req.body.name);
+        const version = req.body.version;
+        const memory = {"init": req.body.memInit, "max": req.body.memMax};
+        const serverPort = req.body.port;
+        
+        if (serverName) {
+            await fileUtils.addDir(gameName, serverName);
+
+            const containerId = await dockerUtils.createServerContainer(gameName, serverName, {type: serverTypes.types.VANILLA.label}, version, memory, serverPort);
+            await jsonUtils.addServer(gameName, serverName, null, serverTypes.types.VANILLA.label, version, memory, serverPort, containerId);
+
+            res.status(200).json({
+                message: "Server added"
+            });
+        }
+        else {
+            res.status(409).json({
+                message: "A server already goes by that name"
+            });
+        }
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "An error occured"
+        });
+    }
+});
+
 
 app.post("/api/games/:gameName/servers/file", upload.none(), async (req, res) => {
     try {
@@ -463,6 +504,28 @@ app.post("/api/games/:gameName/servers/:serverName/command", upload.none(), asyn
         console.log(`Command: ${req.body.command}`);
         res.status(200).json({
             message: "Command sent"
+        });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json("An error occured");
+    }
+});
+
+app.post("/api/games/:gameName/servers/:serverName/settings", upload.none(), async (req, res) => {
+    try {
+        const gameName = req.params.gameName;
+        const serverName = req.params.serverName;
+        const memory = {"init": req.body.memInit, "max": req.body.memMax};
+        const serverPort = req.body.port;
+
+        const containerId = await jsonUtils.getContainerId(gameName, serverName);
+        const newContainerId = await dockerUtils.remakeServerContainer(gameName, serverName, containerId, memory, serverPort);
+
+        await jsonUtils.editSettings(gameName, serverName, memory, serverPort, newContainerId);
+
+        res.status(200).json({
+            message: "Settings saved"
         });
     }
     catch (err) {

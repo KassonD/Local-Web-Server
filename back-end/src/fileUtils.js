@@ -32,6 +32,7 @@ async function detectServerType(gameName, serverName) {
     try {
         const files = await fs.readdir(path.join(serversPath, gameName, serverName, "/"));
 
+        // Installers
         const forgeInstaller = files.find(file => /^forge-.*-installer\.jar/i.test(file));
         if (forgeInstaller)
             return {type: types.FORGE.label, installer: forgeInstaller};
@@ -40,10 +41,10 @@ async function detectServerType(gameName, serverName) {
         if (neoforgeInstaller)
             return {type: types.NEOFORGE.label, installer: neoforgeInstaller};
 
-        return {type: types.VANILLA.label};
+        return null;
     }
     catch (err) {
-        console.error("Error reading file:", err);
+        console.error("Error detecting server type:", err);
     }
 }
 

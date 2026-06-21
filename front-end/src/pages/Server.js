@@ -16,6 +16,7 @@ function App() {
     const [selectedTab, setSelectedTab] = useState("server");
     const [serverStatus, setServerStatus] = useState("N/A");
     const [logs, setLogs] = useState([]);
+    const [maxMemory, setMaxMemory] = useState(8);
     const logVersion = useRef(-1);
     const sendAlert = useContext(AlertContext);
     const confirm = useContext(ConfirmationContext);
@@ -188,6 +189,40 @@ function App() {
         }
     }
 
+    const saveSettings = async (formData) => {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/games/${gameName}/servers/${serverName}/settings`, {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+            console.log(data);
+
+            if (!res.ok || res == null)
+                throw new Error(data.message || res.status);
+
+            sendAlert(ALERT_MODES.SUCCESS, "Settings saved");
+        }
+        catch (err) {
+            console.log("Error: ", err);
+            sendAlert(ALERT_MODES.ERROR, err.message);
+        }
+    }
+
+    const submitForm = (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        console.log(formData)
+        saveSettings(formData);
+    }
+
+    const setMaxMemoryInput = (event) => {
+        console.log(event.target.checked);
+        setMaxMemory(event.target.value);
+    }
+
     useEffect(() => {
         getServer();
     }, []);
@@ -227,6 +262,10 @@ function App() {
                                             <p>{String(gameName).replaceAll("_", " ")}</p>
                                         </div>
                                         <div className="info">
+                                            <label>Type:</label>
+                                            <p>{server.type}</p>
+                                        </div>
+                                        <div className="info">
                                             <label>Version:</label>
                                             <p>{server.version}</p>
                                         </div>
@@ -253,16 +292,23 @@ function App() {
                             )}
                             {selectedTab === "settings" && (
                                 <>
-                                    <div className="tab-container">
+                                    <form className="tab-container" onSubmit={submitForm}>
                                         <div className="info">
-                                            <label>Memory:</label>
-                                            <input className="glow" type="text" name='memory' defaultValue={server.memory} readOnly></input>
+                                            <label>Memory (GB):</label>
+                                            <input className="glow" type="number" name='memInit' min={2} max={maxMemory} defaultValue={server.memory.init} readOnly={serverStatus === SERVER_STATUS.ONLINE} required></input>
+                                            -
+                                            <input className="glow" type="number" name='memMax' min={2} max={16} defaultValue={server.memory.max} onChange={setMaxMemoryInput} readOnly={serverStatus === SERVER_STATUS.ONLINE} required></input>
                                         </div>
                                         <div className="info">
                                             <label>Port:</label>
-                                            <input className="glow" type="text" name='port' defaultValue={server.port} readOnly></input>
+                                            <input className="glow" type="number" name='port' min={1} max={65535} defaultValue={server.port} readOnly={serverStatus === SERVER_STATUS.ONLINE} required></input>
                                         </div>
-                                    </div>
+                                        {serverStatus === SERVER_STATUS.ONLINE ? (
+                                            <h4>(Server must be offline to edit)</h4>
+                                        ) : (
+                                            <button className="primary-subtle">Save</button>
+                                        )}
+                                    </form>
                                     <div className="tab-container">
                                         <div className="tab-button-container">
                                             {serverStatus === SERVER_STATUS.OFFLINE ? (
