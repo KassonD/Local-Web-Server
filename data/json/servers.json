@@ -3,10 +3,6 @@
     {
       "name": "Minecraft_Java",
       "servers": []
-    },
-    {
-      "name": "Minecraft_Bedrock",
-      "servers": []
     }
   ]
 }

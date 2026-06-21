@@ -12,6 +12,7 @@ function App() {
     const [gameIndex, setGameIndex] = useState(0);
     const [server, setServer] = useState([]);
     const [serverLoaded, setServerLoaded] = useState(false);
+    const [postingSettings, setPostingSettings] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [selectedTab, setSelectedTab] = useState("server");
     const [serverStatus, setServerStatus] = useState("N/A");
@@ -191,6 +192,7 @@ function App() {
 
     const saveSettings = async (formData) => {
         try {
+            setPostingSettings(true);
             const res = await fetch(`${BACKEND_URL}/api/games/${gameName}/servers/${serverName}/settings`, {
                 method: "POST",
                 body: formData
@@ -203,10 +205,12 @@ function App() {
                 throw new Error(data.message || res.status);
 
             sendAlert(ALERT_MODES.SUCCESS, "Settings saved");
+            setPostingSettings(false);
         }
         catch (err) {
             console.log("Error: ", err);
             sendAlert(ALERT_MODES.ERROR, err.message);
+            setPostingSettings(false);
         }
     }
 
@@ -225,7 +229,7 @@ function App() {
 
     useEffect(() => {
         getServer();
-    }, []);
+    }, [postingSettings]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -305,6 +309,8 @@ function App() {
                                         </div>
                                         {serverStatus === SERVER_STATUS.ONLINE ? (
                                             <h4>(Server must be offline to edit)</h4>
+                                        ) : postingSettings ? (
+                                            <LoadingSpinner size={SPINNER_SIZE.SMALL} text="Saving"></LoadingSpinner>
                                         ) : (
                                             <button className="primary-subtle">Save</button>
                                         )}
