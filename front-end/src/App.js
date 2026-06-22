@@ -12,7 +12,7 @@ function App() {
     const [backendChecked, setBackendChecked] = useState(false);
     const [backendLoaded, setBackendLoaded] = useState(false);
     const sendAlert = useContext(AlertContext);
-    const title = "Local Web Server"
+    const title = "Home Server"
 
     const getLoaded = async () => {
             try {
