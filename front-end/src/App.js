@@ -12,7 +12,7 @@ function App() {
     const [backendChecked, setBackendChecked] = useState(false);
     const [backendLoaded, setBackendLoaded] = useState(false);
     const sendAlert = useContext(AlertContext);
-    const title = "Home Server"
+    const title = "HomeServer"
 
     const getLoaded = async () => {
             try {
@@ -41,7 +41,10 @@ function App() {
     
     return (
         <>
-            <header className="App-header">{title}</header>
+            <header className="App-header">
+                <img src="hs-logo32.png" alt="(HS)" width={20} height={20}></img>
+                <p>{title}</p>
+            </header>
             <div className="App-body">
                 {backendLoaded ? (
                     <Routes>

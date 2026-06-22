@@ -1,3 +1,15 @@
+# HomeServer
+Provides a locally hosted website to create and manage game servers.
+
+## Supported Games
+
+### Minecraft Java
+Supports both vanilla and modded servers. A zip file containing a "mods" folder is required for modded servers. Currently, HomeServer only supports certain mod loaders with each having its own requirements:
+- Forge
+    - Zip file must contain the Forge installer jar file
+- Neoforge
+    - Zip file must contain the Neoforge installer jar file
+
 ## Instructions
 1. Install **Git**
     - Windows:
@@ -14,7 +26,7 @@
         curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker $USER && newgrp docker
         ```
 
-3. Clone the repositroy
+3. Clone the repository
     ```bash
     git clone https://github.com/KassonD/Local-Web-Server.git
     ```
@@ -43,7 +55,7 @@
         ``` 
     - If the setup was unsuccessful, stop all the Docker containers, delete all Docker images and containers, then run the script again (see **Useful Commands**)
 
-6. Acces the website from another device at **"http://{HOST_DEVICE_IP}:3000"**
+6. Access the website from another device at **"http://{HOST_DEVICE_IP}:3000"**. The backend may take a minute or two to load initially.
 
 ## Useful Commands
 - Stop all docker containers: 
@@ -71,3 +83,7 @@
     ```bash
     sudo rm -rf <DIRECTORY_NAME>
     ```
+
+## Credits
+
+[itzg/docker-minecraft-server](https://github.com/itzg/docker-minecraft-server)
