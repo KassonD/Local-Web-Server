@@ -42,7 +42,7 @@ function App() {
     return (
         <>
             <header className="App-header">
-                <img src="hs-logo32.png" alt="(HS)" width={20} height={20}></img>
+                <img src="/hs-logo32.png" alt="(HS)" width={20} height={20}></img>
                 <p>{title}</p>
             </header>
             <div className="App-body">

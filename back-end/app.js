@@ -82,6 +82,7 @@ app.use(express.static("/data/public"));
 // Get
 app.get("/api/loaded", async (req, res) => {
     try {
+        await serverTypes.refreshVersions();
         res.json(startupComplete);
     }
     catch (err) {
